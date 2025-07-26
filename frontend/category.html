@@ -52,8 +52,105 @@
     integrity="sha512-LGHBR+kJ5jZSIzhhdfytPoEHzgaYuTRifq9g5l6ja6/k9NAOsAi5dQh4zQF6JIRB8cAYxTRedERUF+97/KuivQ=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+  <!-- jQuery Validation Plugin -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"
+    integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/additional-methods.min.js"
+    integrity="sha512-6Uv+497AWTmj/6V14BsQioPrm3kgwmK9HYIyWP+vClykX52b0zrDGP7lajZoIY1nNlX4oQuh7+go/vxu8vK3Q=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
   <script src="assets/js/category.js"></script>
   <link rel="stylesheet" href="assets/css/style.css" />
+  
+  <style>
+    /* Custom validation styles */
+    .form-control.is-invalid {
+      border-color: #dc3545;
+      box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+    
+    .form-control.is-valid {
+      border-color: #28a745;
+      box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    
+    .invalid-feedback {
+      display: block;
+      color: #dc3545;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+    
+    .modal-body .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .text-danger {
+      color: #dc3545 !important;
+    }
+
+    /* Deleted category styles */
+    .text-decoration-line-through {
+      text-decoration: line-through;
+    }
+    
+    .text-muted {
+      color: #6c757d !important;
+    }
+    
+    /* Restore button styles */
+    .restore-btn {
+      background-color: #28a745;
+      border-color: #28a745;
+    }
+    
+    .restore-btn:hover {
+      background-color: #218838;
+      border-color: #1e7e34;
+    }
+    
+    /* DataTable row styling for deleted items */
+    .dataTables_wrapper .dataTable tbody tr.deleted-row {
+      background-color: #f8f9fa;
+    }
+    
+    .dataTables_wrapper .dataTable tbody tr.deleted-row:hover {
+      background-color: #e9ecef;
+    }
+
+    /* Infinite scroll styles */
+    .loading-row {
+      background-color: #f8f9fa;
+    }
+    
+    .loading-row td {
+      padding: 20px !important;
+    }
+    
+    .load-more-btn {
+      margin: 20px 0;
+      padding: 10px 30px;
+      font-size: 16px;
+    }
+    
+    .load-more-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .spinner-border {
+      width: 1rem;
+      height: 1rem;
+    }
+    
+    /* Hide DataTable pagination elements */
+    .dataTables_paginate,
+    .dataTables_info,
+    .dataTables_length {
+      display: none !important;
+    }
+  </style>
 </head>
 
 <body>
@@ -95,8 +192,11 @@
         </div>
         <div class="modal-body">
           <div class="form-group">
-            <label for="category_description">Description</label>
-            <input type="text" class="form-control" id="category_description" name="description" required>
+            <label for="category_description">Description <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="category_description" name="description" 
+                   required minlength="2" maxlength="100" 
+                   placeholder="Enter category description">
+            <div class="invalid-feedback" id="description-error"></div>
           </div>
         </div>
         <div class="modal-footer">
