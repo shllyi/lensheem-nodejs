@@ -160,7 +160,7 @@
             <!-- Authenticated User Dropdown -->
             <li class="nav-item dropdown d-none" id="user-dropdown">
               <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="https://via.placeholder.com/40x40/cccccc/ffffff?text=U" alt="Profile Image" class="rounded-circle profile-img" />
+                <img src="/assets/uploads/default.jpg" alt="Profile Image" class="rounded-circle profile-img" />
                 <span class="ms-2 text-uppercase" id="username">USER</span>
               </a>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -176,7 +176,7 @@
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <!-- jQuery is loaded by the main page, so we don't load it here to avoid conflicts -->
 
   <script>
     function logoutUser() {
@@ -190,31 +190,51 @@
       const userId = localStorage.getItem('userId');
 
       if (token && userId) {
-        $('#login-link, #register-link').addClass('d-none');
-        $('#user-dropdown').removeClass('d-none');
+        // Use vanilla JavaScript instead of jQuery
+        const loginLink = document.getElementById('login-link');
+        const registerLink = document.getElementById('register-link');
+        const userDropdown = document.getElementById('user-dropdown');
+        
+        if (loginLink) loginLink.classList.add('d-none');
+        if (registerLink) registerLink.classList.add('d-none');
+        if (userDropdown) userDropdown.classList.remove('d-none');
 
-        // Fetch user data
-        $.get(`/api/users/customers/${userId}`, function (res) {
-          if (res.success && res.data) {
-            const data = res.data;
-            const fullName = `${data.fname || ''} ${data.lname || ''}`.trim();
-            $('#username').text(fullName || 'USER');
-            if (data.image_path) {
-              $('.profile-img').attr('src', `/${data.image_path}`);
+        // Fetch user data using vanilla JavaScript
+        fetch(`/api/users/customers/${userId}`)
+          .then(response => response.json())
+          .then(res => {
+            if (res.success && res.data) {
+              const data = res.data;
+              const fullName = `${data.fname || ''} ${data.lname || ''}`.trim();
+              const usernameElement = document.getElementById('username');
+              const profileImg = document.querySelector('.profile-img');
+              
+              if (usernameElement) usernameElement.textContent = fullName || 'USER';
+              if (profileImg && data.image_path) {
+                profileImg.src = `/${data.image_path}`;
+              }
             }
-          }
-        }).fail(() => {
-          console.warn('User data fetch failed. Falling back to default user.');
-          $('#username').text('USER');
-        });
+          })
+          .catch(() => {
+            console.warn('User data fetch failed. Falling back to default user.');
+            const usernameElement = document.getElementById('username');
+            if (usernameElement) usernameElement.textContent = 'USER';
+          });
 
       } else {
-        $('#login-link, #register-link').removeClass('d-none');
-        $('#user-dropdown').addClass('d-none');
+        // Use vanilla JavaScript instead of jQuery
+        const loginLink = document.getElementById('login-link');
+        const registerLink = document.getElementById('register-link');
+        const userDropdown = document.getElementById('user-dropdown');
+        
+        if (loginLink) loginLink.classList.remove('d-none');
+        if (registerLink) registerLink.classList.remove('d-none');
+        if (userDropdown) userDropdown.classList.add('d-none');
       }
     }
 
-    $(document).ready(() => {
+    // Use vanilla JavaScript instead of jQuery
+    document.addEventListener('DOMContentLoaded', () => {
       updateNavbar();
     });
 

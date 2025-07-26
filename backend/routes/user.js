@@ -21,7 +21,7 @@ const {
 // Admin user management routes
 router.get('/users', getAllUsers);
 router.get('/users/:id', getUserById);
-router.post('/users', createUser);
+router.post('/users', upload.single('image'), createUser);
 router.put('/users/:id', updateUserAdmin);
 router.put('/users/:id/role', updateUserRole);
 router.put('/users/:id/status', updateUserStatus);

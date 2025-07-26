@@ -4,23 +4,41 @@ const jwt = require('jsonwebtoken');
 
 // ----------------- Admin: Get All Users -----------------
 const getAllUsers = (req, res) => {
-  const sql = `
+  const { search } = req.query;
+  let sql = `
     SELECT 
-      u.id, 
-      u.name, 
+      u.id as user_id, 
+      c.customer_id,
+      c.title,
+      c.fname,
+      c.lname,
       u.email, 
       u.role, 
       u.status,
-      c.addressline,
-      c.town,
-      c.phone
+      COALESCE(c.addressline, '') as addressline,
+      COALESCE(c.town, '') as town,
+      COALESCE(c.phone, '') as phone,
+      COALESCE(c.image_path, '') as image_path
     FROM users u
     LEFT JOIN customer c ON u.id = c.user_id
     WHERE u.deleted_at IS NULL
-    ORDER BY u.id DESC
   `;
+  let params = [];
+  if (search && search.trim() !== '') {
+    sql += ` AND (
+      c.fname LIKE ? OR
+      c.lname LIKE ? OR
+      u.email LIKE ? OR
+      COALESCE(c.addressline, '') LIKE ? OR
+      COALESCE(c.town, '') LIKE ? OR
+      COALESCE(c.phone, '') LIKE ?
+    )`;
+    const like = `%${search}%`;
+    params = [like, like, like, like, like, like];
+  }
+  sql += ' ORDER BY u.id DESC';
 
-  connection.execute(sql, (err, results) => {
+  connection.execute(sql, params, (err, results) => {
     if (err) {
       console.log('Database error:', err);
       return res.status(500).json({ 
@@ -28,6 +46,8 @@ const getAllUsers = (req, res) => {
         error: 'Failed to fetch users' 
       });
     }
+
+    // Debug logging removed
 
     return res.status(200).json({ 
       success: true, 
@@ -49,7 +69,8 @@ const getUserById = (req, res) => {
       u.status,
       c.addressline,
       c.town,
-      c.phone
+      c.phone,
+      c.image_path
     FROM users u
     LEFT JOIN customer c ON u.id = c.user_id
     WHERE u.id = ? AND u.deleted_at IS NULL
@@ -80,7 +101,7 @@ const getUserById = (req, res) => {
 
 // ----------------- Admin: Create User -----------------
 const createUser = async (req, res) => {
-  const { name, email, password, addressline, town, phone, role = 'user' } = req.body;
+  const { name, email, password, addressline, town, phone, role = 'user', title, fname, lname } = req.body;
   
   // Validation
   if (!name || !email || !password) {
@@ -89,6 +110,9 @@ const createUser = async (req, res) => {
       error: 'Name, email, and password are required' 
     });
   }
+  
+  // Handle image upload
+  const image = req.file ? req.file.path.replace(/\\/g, "/").replace("public/", "") : null;
   
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -123,10 +147,10 @@ const createUser = async (req, res) => {
 
         const userId = result.insertId;
 
-        // Insert customer profile if address details provided
-        if (addressline || town || phone) {
-          const customerSql = 'INSERT INTO customer (user_id, addressline, town, phone) VALUES (?, ?, ?, ?)';
-          connection.execute(customerSql, [userId, addressline || null, town || null, phone || null], (err) => {
+        // Insert customer profile if any details provided
+        if (addressline || town || phone || title || fname || lname || image) {
+          const customerSql = 'INSERT INTO customer (user_id, title, fname, lname, addressline, town, phone, image_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+          connection.execute(customerSql, [userId, title || null, fname || null, lname || null, addressline || null, town || null, phone || null, image || null], (err) => {
             if (err) {
               connection.rollback(() => {
                 return res.status(500).json({ 
@@ -190,7 +214,7 @@ const createUser = async (req, res) => {
 // ----------------- Admin: Update User -----------------
 const updateUserAdmin = (req, res) => {
   const userId = req.params.id;
-  const { name, email, addressline, town, phone } = req.body;
+  const { name, email, addressline, town, phone, title, fname, lname } = req.body;
 
   if (!name || !email) {
     return res.status(400).json({ 
@@ -246,8 +270,8 @@ const updateUserAdmin = (req, res) => {
 
         if (results.length > 0) {
           // Update existing customer profile
-          const updateSql = 'UPDATE customer SET addressline = ?, town = ?, phone = ? WHERE user_id = ?';
-          connection.execute(updateSql, [addressline || null, town || null, phone || null, userId], (err) => {
+          const updateSql = 'UPDATE customer SET title = ?, fname = ?, lname = ?, addressline = ?, town = ?, phone = ? WHERE user_id = ?';
+          connection.execute(updateSql, [title || null, fname || null, lname || null, addressline || null, town || null, phone || null, userId], (err) => {
             if (err) {
               connection.rollback(() => {
                 return res.status(500).json({ 
@@ -276,10 +300,10 @@ const updateUserAdmin = (req, res) => {
             });
           });
         } else {
-          // Create new customer profile if address details provided
-          if (addressline || town || phone) {
-            const insertSql = 'INSERT INTO customer (user_id, addressline, town, phone) VALUES (?, ?, ?, ?)';
-            connection.execute(insertSql, [userId, addressline || null, town || null, phone || null], (err) => {
+          // Create new customer profile if any details provided
+          if (addressline || town || phone || title || fname || lname) {
+            const insertSql = 'INSERT INTO customer (user_id, title, fname, lname, addressline, town, phone) VALUES (?, ?, ?, ?, ?, ?, ?)';
+            connection.execute(insertSql, [userId, title || null, fname || null, lname || null, addressline || null, town || null, phone || null], (err) => {
               if (err) {
                 connection.rollback(() => {
                   return res.status(500).json({ 

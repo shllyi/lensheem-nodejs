@@ -51,6 +51,10 @@
     integrity="sha512-LGHBR+kJ5jZSIzhhdfytPoEHzgaYuTRifq9g5l6ja6/k9NAOsAi5dQh4zQF6JIRB8cAYxTRedERUF+97/KuivQ=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+  <!-- jQuery Validation Plugin -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/additional-methods.min.js"></script>
+
   <style>
     .role-badge, .status-badge {
       padding: 4px 8px;
@@ -83,11 +87,43 @@
     .action-buttons {
       display: flex;
       gap: 5px;
+      align-items: center;
+      justify-content: center;
     }
-    
     .action-buttons .btn {
-      padding: 0.25rem 0.5rem;
-      font-size: 0.875rem;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 6px;
+      box-shadow: none;
+      transition: box-shadow 0.2s, background 0.2s;
+      padding: 0;
+    }
+    .action-buttons .btn-warning {
+      background: #ffc107;
+      color: #fff;
+      border: none;
+    }
+    .action-buttons .btn-warning:hover {
+      background: #e0a800;
+      box-shadow: 0 2px 8px rgba(255,193,7,0.2);
+    }
+    .action-buttons .btn-secondary {
+      background: #17a2b8;
+      color: #fff;
+      border: none;
+    }
+    .action-buttons .btn-secondary:hover {
+      background: #138496;
+      box-shadow: 0 2px 8px rgba(23,162,184,0.2);
+    }
+    .action-buttons i {
+      font-size: 1.2rem;
+      line-height: 1;
+      color: #222;
     }
     
     .dataTables_wrapper .dt-buttons {
@@ -104,6 +140,40 @@
     
     .search-container {
       max-width: 300px;
+    }
+    
+    /* Validation Styles */
+    .error {
+      color: #dc3545;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+    
+    .form-control.is-invalid {
+      border-color: #dc3545;
+      box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+    
+    .form-control.is-valid {
+      border-color: #28a745;
+      box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    
+    .password-strength {
+      margin-top: 0.25rem;
+      font-size: 0.875rem;
+    }
+    
+    .password-strength.weak {
+      color: #dc3545;
+    }
+    
+    .password-strength.medium {
+      color: #ffc107;
+    }
+    
+    .password-strength.strong {
+      color: #28a745;
     }
   </style>
 </head>
@@ -140,8 +210,12 @@
           <table id="utable" class="table table-striped table-bordered table-hover" style="width:100%">
             <thead class="thead-dark">
               <tr>
-                <th>ID</th>
-                <th>Name</th>
+                <th>User ID</th>
+                <th>Customer ID</th>
+                <th>Photo</th>
+                <th>Title</th>
+                <th>First Name</th>
+                <th>Last Name</th>
                 <th>Email</th>
                 <th>AddressLine</th>
                 <th>Town</th>
@@ -173,15 +247,33 @@
         <div class="modal-body">
           <div class="form-group">
             <label for="user_name">Name *</label>
-            <input type="text" class="form-control" id="user_name" name="name" required>
+            <input type="text" class="form-control" id="user_name" name="name">
           </div>
           <div class="form-group">
             <label for="user_email">Email *</label>
-            <input type="email" class="form-control" id="user_email" name="email" required>
+            <input type="text" class="form-control" id="user_email" name="email">
           </div>
           <div class="form-group">
             <label for="user_password">Password *</label>
-            <input type="password" class="form-control" id="user_password" name="password" required>
+            <input type="password" class="form-control" id="user_password" name="password">
+            <div class="password-strength" id="password-strength"></div>
+          </div>
+          <div class="form-group">
+            <label for="user_image">Profile Image</label>
+            <input type="file" class="form-control-file" id="user_image" name="image" accept="image/*">
+            <small class="form-text text-muted">Accepted formats: JPG, JPEG, PNG</small>
+          </div>
+          <div class="form-group">
+            <label for="user_title">Title</label>
+            <input type="text" class="form-control" id="user_title" name="title">
+          </div>
+          <div class="form-group">
+            <label for="user_fname">First Name *</label>
+            <input type="text" class="form-control" id="user_fname" name="fname" required>
+          </div>
+          <div class="form-group">
+            <label for="user_lname">Last Name *</label>
+            <input type="text" class="form-control" id="user_lname" name="lname" required>
           </div>
           <div class="form-group">
             <label for="user_addressline">Address</label>
@@ -197,7 +289,7 @@
           </div>
           <div class="form-group">
             <label for="user_role">Role *</label>
-            <select class="form-control" id="user_role" name="role" required>
+            <select class="form-control" id="user_role" name="role">
               <option value="">Select Role</option>
               <option value="admin">Admin</option>
               <option value="user">User</option>
@@ -208,7 +300,6 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="button" class="btn btn-success" id="userSubmit">Add User</button>
-          <button type="button" class="btn btn-warning" id="userUpdate" style="display: none;">Update User</button>
         </div>
       </form>
     </div>
@@ -284,497 +375,550 @@
 <script>
     $(document).ready(function () {
 
-      $('#header').load('/header_admin.html', function () {
-          renderCart();
-        });
-
+    // ========== CONFIGURATION ========== //
     const url = 'http://localhost:3000/';
-  $('#utable').DataTable({
-        ajax: {
-            url: `${url}api/users/users`,
-            dataSrc: function(json) {
-                // Handle different response formats
-                if (json.rows) return json.rows;
-                if (json.data) return json.data;
-                if (Array.isArray(json)) return json;
-                return [];
-            },
-            error: function (xhr, error, thrown) {
-                console.error('DataTable loading error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: 'Failed to load user data. Please check your connection and try again.',
-                });
-            }
+    
+    // ========== PAGINATION & SCROLL VARIABLES ========== //
+    let currentPage = 1;
+    const pageSize = 20;
+    let loading = false;
+    let allLoaded = false;
+    let searchTerm = '';
+
+    // ========== IMAGE HANDLING ========== //
+    function handleImgError(img) {
+      if (!img._defaulted) {
+        img.src = '/assets/uploads/default.jpg';
+        img._defaulted = true; // Prevent infinite loop if default image is missing
+      }
+    }
+
+    // ========== RENDERING FUNCTIONS ========== //
+    // Render user row
+    function renderUserRow(user) {
+      const roleClass = `role-${user.role.toLowerCase()}`;
+      const statusClass = `status-${user.status.toLowerCase()}`;
+      
+      // User data processing
+      
+      // Handle empty or null image_path
+      let photoUrl = '/assets/uploads/default.jpg';
+      if (user.image_path && user.image_path.trim() !== '') {
+        // Backend serves uploads from /uploads, so we use that path
+        photoUrl = `/${user.image_path}`;
+      }
+      
+      return `<tr>
+        <td>${user.user_id || ''}</td>
+        <td>${user.customer_id || ''}</td>
+        <td><img src="${photoUrl}" alt="User Photo" class="user-photo" style="width:40px;height:40px;object-fit:cover;border-radius:50%;border:1.5px solid #ccc;" onerror="handleImgError(this)"></td>
+        <td>${user.title || ''}</td>
+        <td>${user.fname || ''}</td>
+        <td>${user.lname || ''}</td>
+        <td>${user.email}</td>
+        <td>${user.addressline || ''}</td>
+        <td>${user.town || ''}</td>
+        <td>${user.phone || ''}</td>
+        <td><span class="role-badge ${roleClass}">${user.role.charAt(0).toUpperCase() + user.role.slice(1)}</span></td>
+        <td><span class="status-badge ${statusClass}">${user.status.charAt(0).toUpperCase() + user.status.slice(1)}</span></td>
+        <td>
+          <div class="action-buttons">
+            <button class="btn btn-sm btn-warning roleBtn" data-id="${user.user_id}" title="Edit Role" data-toggle="tooltip">
+              <i class="fas fa-user-cog"></i>
+            </button>
+            <button class="btn btn-sm btn-secondary statusBtn" data-id="${user.user_id}" title="Change Status" data-toggle="tooltip">
+              <i class="fas fa-user-check"></i>
+            </button>
+          </div>
+        </td>
+      </tr>`;
+    }
+
+    // ========== DATA FETCHING ========== //
+    // Fetch users from API
+    function fetchUsers(page, append = true) {
+      if (loading || allLoaded) return;
+      loading = true;
+      $('#ubody').append('<tr class="loading-row"><td colspan="12" class="text-center">Loading...</td></tr>');
+      let apiUrl = `${url}api/users/users?page=${page}&limit=${pageSize}`;
+      if (searchTerm) apiUrl += `&search=${encodeURIComponent(searchTerm)}`;
+      $.ajax({
+        url: apiUrl,
+        method: 'GET',
+        dataType: 'json',
+        success: function (data) {
+          $('.loading-row').remove();
+          let users = data.rows || data.data || data;
+          if (!Array.isArray(users)) users = [];
+          if (users.length < pageSize) allLoaded = true;
+          if (!append) $('#ubody').empty();
+          users.forEach(user => {
+            $('#ubody').append(renderUserRow(user));
+          });
+          if (users.length === 0 && page === 1) {
+            $('#ubody').append('<tr><td colspan="12" class="text-center">No users found.</td></tr>');
+          }
+          loading = false;
         },
-        dom: 'Bfrtip',
-        buttons: [
-            {
-                extend: 'pdf',
-                className: 'btn btn-danger btn-sm',
-                title: 'Users Report'
-            },
-            {
-                extend: 'excel',
-                className: 'btn btn-success btn-sm',
-                title: 'Users Report'
-            },
-            {
-                text: 'Add User',
-                className: 'btn btn-primary btn-sm',
-                action: function (e, dt, node, config) {
-                    $("#uform").trigger("reset");
-                    $('#userModal').modal('show');
-                    $('#userUpdate').hide();
-                    $('#userSubmit').show();
-                    $('#userId').remove();
-                    $('#role-description').text('');
-                    $('#userModalLabel').text('Add New User');
-                    $('#user_password').prop('required', true);
-                }
-            }
-        ],
-        columns: [
-            { data: 'id' },
-            { data: 'name' },
-            { data: 'email' },
-            { data: 'addressline' },
-            { data: 'town' },
-            { data: 'phone' },
-            {
-                data: 'role',
-                render: function (data, type, row) {
-                    const roleClass = `role-${data.toLowerCase()}`;
-                    return `<span class="role-badge ${roleClass}">${data.charAt(0).toUpperCase() + data.slice(1)}</span>`;
-                }
-            },
-            {
-                data: 'status',
-                render: function (data, type, row) {
-                    const statusClass = `status-${data.toLowerCase()}`;
-                    return `<span class="status-badge ${statusClass}">${data.charAt(0).toUpperCase() + data.slice(1)}</span>`;
-                }
-            },
-            {
-                data: null,
-                render: function (data, type, row) {
-                    return `
-                        <div class="action-buttons">
-                            <button class="btn btn-sm btn-primary editBtn" data-id="${data.id}" title="Edit User">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-warning roleBtn" data-id="${data.id}" title="Change Role">
-                                <i class="fas fa-user-tag"></i>
-                            </button>
-                            <button class="btn btn-sm btn-secondary statusBtn" data-id="${data.id}" title="Change Status">
-                                <i class="fas fa-toggle-on"></i>
-                            </button>
-                        </div>
-                    `;
-                }
-            }
-        ],
-        responsive: true,
-        processing: true,
-        language: {
-            processing: "Loading users..."
+        error: function () {
+          $('.loading-row').remove();
+          loading = false;
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Failed to load user data. Please check your connection and try again.',
+          });
         }
+      });
+    }
+
+    // ========== INITIALIZATION ========== //
+    // Initial load of users
+    fetchUsers(currentPage);
+
+    // ========== EVENT HANDLERS ========== //
+    // Infinite scroll handler
+    $('.table-responsive').on('scroll', function () {
+      const $this = $(this);
+      if ($this[0].scrollHeight - $this.scrollTop() - $this.outerHeight() < 100) {
+        if (!loading && !allLoaded) {
+          currentPage++;
+          fetchUsers(currentPage);
+        }
+      }
     });
 
-    // Show role description when role is selected
-    $('#user_role').on('change', function () {
-        const selectedOption = $(this).find('option:selected');
-        const description = selectedOption.data('description');
-
-        if (description) {
-            $('#role-description').text(`Role: ${description}`);
-        } else {
-            $('#role-description').text('');
-        }
+    // ========== SEARCH FUNCTIONALITY ========== //
+    // Search functionality
+    $('#userSearch').on('keyup', function (e) {
+      if (e.key === 'Enter' || this.value === '' || this.value.length > 2) {
+        searchTerm = this.value;
+        currentPage = 1;
+        allLoaded = false;
+        fetchUsers(currentPage, false);
+      }
+    });
+    $('#searchButton').on('click', function () {
+      searchTerm = $('#userSearch').val();
+      currentPage = 1;
+      allLoaded = false;
+      fetchUsers(currentPage, false);
     });
 
-    // Submit new user
+    // ========== MODAL HANDLING ========== //
+    // Add User button - opens the modal
+    $(document).on('click', '.btn.btn-success[data-toggle="modal"]', function () {
+      $("#uform").trigger("reset");
+      $('#userModal').modal('show');
+      $('#role-description').text('');
+      $('#userModalLabel').text('Add New User');
+    });
+
+    // ========== FORM SUBMISSION ========== //
+    // Submit new user - main form submission handler
     $("#userSubmit").on('click', function (e) {
-        e.preventDefault();
-
-        if (!$('#uform')[0].checkValidity()) {
-            $('#uform')[0].reportValidity();
-            return;
+      e.preventDefault();
+      
+      // Prevent multiple submissions
+      const $submitBtn = $(this);
+      if ($submitBtn.prop('disabled')) {
+        return false;
+      }
+      
+      // Disable button and show loading
+      $submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Creating...');
+      
+      // Check if jQuery validation plugin is loaded
+      if (typeof $.validator !== 'undefined' && $('#uform').valid) {
+        if (!$('#uform').valid()) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Form Incomplete',
+            text: 'Please fill out all required fields correctly before submitting.'
+          });
+          $submitBtn.prop('disabled', false).html('Add User');
+          return false;
         }
-
-        var data = $('#uform')[0];
-        let formData = new FormData(data);
-
-        // Convert FormData to regular object for JSON
-        let userData = {};
-        for (var pair of formData.entries()) {
-            userData[pair[0]] = pair[1];
+      } else {
+        // Manual validation as fallback
+        const fname = $('#user_fname').val().trim();
+        const lname = $('#user_lname').val().trim();
+        const email = $('#user_email').val().trim();
+        const password = $('#user_password').val();
+        const role = $('#user_role').val();
+        
+        let errors = [];
+        
+        if (!fname) errors.push('First name is required');
+        if (!lname) errors.push('Last name is required');
+        if (!email) errors.push('Email is required');
+        if (!password) errors.push('Password is required');
+        if (!role) errors.push('Role is required');
+        
+        if (errors.length > 0) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Form Incomplete',
+            text: errors.join('\n')
+          });
+          $submitBtn.prop('disabled', false).html('Add User');
+          return false;
         }
-
-        // Show loading
-        Swal.fire({
-            title: 'Creating User...',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
+      }
+      
+      // Use FormData for file upload
+      let formData = new FormData($('#uform')[0]);
+      
+      Swal.fire({
+        title: 'Creating User...',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+      });
+      $.ajax({
+        method: "POST",
+        url: `${url}api/users/users`,
+        data: formData,
+        processData: false,
+        contentType: false,
+        dataType: "json",
+        timeout: 30000, // 30 second timeout
+        success: function (data) {
+          // Close modal using Bootstrap's modal method or jQuery
+          try {
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+              const modal = bootstrap.Modal.getInstance(document.getElementById('userModal'));
+              if (modal) modal.hide();
+            } else if (typeof $ !== 'undefined' && $.fn.modal) {
+              $("#userModal").modal("hide");
+            } else {
+              // Fallback: hide modal manually
+              $("#userModal").hide();
+              $(".modal-backdrop").remove();
+              $("body").removeClass("modal-open");
             }
-        });
-
-        $.ajax({
-            method: "POST",
-            url: `${url}api/users/users`,
-            data: JSON.stringify(userData),
-            contentType: 'application/json',
-            dataType: "json",
-            success: function (data) {
-                console.log(data);
-                $("#userModal").modal("hide");
-                var $utable = $('#utable').DataTable();
-                $utable.ajax.reload();
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'User Added!',
-                    text: 'New user has been added successfully.',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            },
-            error: function (xhr, status, error) {
-                console.log(xhr.responseJSON);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: xhr.responseJSON?.error || 'Failed to add user. Please try again.',
-                });
-            }
-        });
+          } catch (e) {
+            // Fallback: hide modal manually
+            $("#userModal").hide();
+            $(".modal-backdrop").remove();
+            $("body").removeClass("modal-open");
+          }
+          
+          currentPage = 1;
+          allLoaded = false;
+          fetchUsers(currentPage, false);
+          Swal.fire({
+            icon: 'success',
+            title: 'User Added!',
+            text: 'New user has been added successfully.',
+            timer: 2000,
+            showConfirmButton: false
+          });
+          
+          // Reset button
+          $submitBtn.prop('disabled', false).html('Add User');
+        },
+        error: function (xhr, status, error) {
+          // Close any open loading dialogs
+          Swal.close();
+          
+          let errorMessage = 'Failed to add user. Please try again.';
+          
+          if (status === 'timeout') {
+            errorMessage = 'Request timed out. Please try again.';
+          } else if (xhr.responseJSON && xhr.responseJSON.error) {
+            errorMessage = xhr.responseJSON.error;
+          } else if (xhr.status === 0) {
+            errorMessage = 'Network error. Please check your connection.';
+          }
+          
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: errorMessage,
+          });
+          
+          // Reset button
+          $submitBtn.prop('disabled', false).html('Add User');
+        }
+      });
     });
 
-    // Edit user button click handler
-    $('#utable tbody').on('click', 'button.editBtn', function (e) {
-        e.preventDefault();
-        $('#userId').remove();
-        $("#uform").trigger("reset");
-
-        var id = $(this).data('id');
-        console.log(id);
-        $('#userModal').modal('show');
-        $('<input>').attr({ type: 'hidden', id: 'userId', name: 'user_id', value: id }).appendTo('#uform');
-
-        $('#userSubmit').hide();
-        $('#userUpdate').show();
-        $('#userModalLabel').text('Edit User');
-
-        // Show loading
-        Swal.fire({
-            title: 'Loading User Data...',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-
-        $.ajax({
-            method: "GET",
-            url: `${url}api/users/users/${id}`,
-            dataType: "json",
-            success: function (data) {
-                const { result } = data;
-                console.log(result);
-
-                Swal.close();
 
 
-                const user = result[0] || result;
-                $('#user_name').val(user.name);
-                $('#user_email').val(user.email);
-                $('#user_phone').val(user.phone);
-                $('#user_town').val(user.town);
-                $('#user_addressline').val(user.addressline);
-                $('#user_role').val(user.role);
-                // Don't populate password field for security
-                $('#user_password').val('').prop('required', false);
-            },
-            error: function (xhr, status, error) {
-                console.log(xhr.responseJSON);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: xhr.responseJSON?.error || 'Failed to load user data.',
-                });
-            }
-        });
-    });
-
-    // Update user
-    $("#userUpdate").on('click', function (e) {
-        e.preventDefault();
-
-        if (!$('#uform')[0].checkValidity()) {
-            $('#uform')[0].reportValidity();
-            return;
-        }
-
-        var id = $('#userId').val();
-        console.log(id);
-        var table = $('#utable').DataTable();
-
-        var data = $('#uform')[0];
-        let formData = new FormData(data);
-
-        // Convert FormData to regular object for JSON
-        let userData = {};
-        for (var pair of formData.entries()) {
-            userData[pair[0]] = pair[1];
-        }
-
-        // Show loading
-        Swal.fire({
-            title: 'Updating User...',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-
-        $.ajax({
-            method: "PUT",
-            url: `${url}api/users/users/${id}`,
-            data: JSON.stringify(userData),
-            contentType: 'application/json',
-            dataType: "json",
-            success: function (data) {
-                console.log(data);
-                $('#userModal').modal("hide");
-                table.ajax.reload();
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'User Updated!',
-                    text: 'User information has been updated successfully.',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            },
-            error: function (xhr, status, error) {
-                console.log(xhr.responseJSON);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: xhr.responseJSON?.error || 'Failed to update user. Please try again.',
-                });
-            }
-        });
-    });
-
+    // ========== USER MANAGEMENT ACTIONS ========== //
     // Change role button click handler
-    $('#utable tbody').on('click', 'button.roleBtn', function (e) {
-        e.preventDefault();
-        var id = $(this).data('id');
-        $('#role_user_id').val(id);
-        $('#roleModal').modal('show');
+    $('#ubody').on('click', 'button.roleBtn', function (e) {
+      e.preventDefault();
+      var id = $(this).data('id');
+      $('#role_user_id').val(id);
+      $('#roleModal').modal('show');
     });
-
     // Submit role change
     $("#roleSubmit").on('click', function (e) {
-        e.preventDefault();
-
-        if (!$('#roleForm')[0].checkValidity()) {
-            $('#roleForm')[0].reportValidity();
-            return;
+      e.preventDefault();
+      if (!$('#roleForm')[0].checkValidity()) {
+        $('#roleForm')[0].reportValidity();
+        return;
+      }
+      var userId = $('#role_user_id').val();
+      var newRole = $('#new_role').val();
+      Swal.fire({
+        title: 'Updating Role...',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+      });
+      $.ajax({
+        method: "PUT",
+        url: `${url}api/users/users/${userId}/role`,
+        data: JSON.stringify({ role: newRole }),
+        contentType: 'application/json',
+        dataType: "json",
+        success: function (data) {
+          $('#roleModal').modal("hide");
+          currentPage = 1;
+          allLoaded = false;
+          fetchUsers(currentPage, false);
+          Swal.fire({
+            icon: 'success',
+            title: 'Role Updated!',
+            text: 'User role has been updated successfully.',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        },
+        error: function (xhr) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: xhr.responseJSON?.error || 'Failed to update role. Please try again.',
+          });
         }
-
-        var userId = $('#role_user_id').val();
-        var newRole = $('#new_role').val();
-        var table = $('#utable').DataTable();
-
-        // Show loading
-        Swal.fire({
-            title: 'Updating Role...',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-
-        $.ajax({
-            method: "PUT",
-            url: `${url}api/users/users/${userId}/role`,
-            data: JSON.stringify({ role: newRole }),
-            contentType: 'application/json',
-            dataType: "json",
-            success: function (data) {
-                console.log(data);
-                $('#roleModal').modal("hide");
-                table.ajax.reload();
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Role Updated!',
-                    text: 'User role has been updated successfully.',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            },
-            error: function (xhr, status, error) {
-                console.log(xhr.responseJSON);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: xhr.responseJSON?.error || 'Failed to update role. Please try again.',
-                });
-            }
-        });
+      });
     });
-
     // Change status button click handler
-    $('#utable tbody').on('click', 'button.statusBtn', function (e) {
-        e.preventDefault();
-        var id = $(this).data('id');
-        $('#status_user_id').val(id);
-        $('#statusModal').modal('show');
+    $('#ubody').on('click', 'button.statusBtn', function (e) {
+      e.preventDefault();
+      var id = $(this).data('id');
+      $('#status_user_id').val(id);
+      $('#statusModal').modal('show');
     });
-
     // Submit status change
     $("#statusSubmit").on('click', function (e) {
-        e.preventDefault();
-
-        if (!$('#statusForm')[0].checkValidity()) {
-            $('#statusForm')[0].reportValidity();
-            return;
+      e.preventDefault();
+      if (!$('#statusForm')[0].checkValidity()) {
+        $('#statusForm')[0].reportValidity();
+        return;
+      }
+      var userId = $('#status_user_id').val();
+      var newStatus = $('#new_status').val();
+      Swal.fire({
+        title: 'Updating Status...',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+      });
+      $.ajax({
+        method: "PUT",
+        url: `${url}api/users/users/${userId}/status`,
+        data: JSON.stringify({ status: newStatus }),
+        contentType: 'application/json',
+        dataType: "json",
+        success: function (data) {
+          $('#statusModal').modal("hide");
+          currentPage = 1;
+          allLoaded = false;
+          fetchUsers(currentPage, false);
+          Swal.fire({
+            icon: 'success',
+            title: 'Status Updated!',
+            text: 'User status has been updated successfully.',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        },
+        error: function (xhr) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: xhr.responseJSON?.error || 'Failed to update status. Please try again.',
+          });
         }
-
-        var userId = $('#status_user_id').val();
-        var newStatus = $('#new_status').val();
-        var table = $('#utable').DataTable();
-
-        // Show loading
-        Swal.fire({
-            title: 'Updating Status...',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-
-        $.ajax({
-            method: "PUT",
-            url: `${url}api/users/users/${userId}/status`,
-            data: JSON.stringify({ status: newStatus }),
-            contentType: 'application/json',
-            dataType: "json",
-            success: function (data) {
-                console.log(data);
-                $('#statusModal').modal("hide");
-                table.ajax.reload();
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Status Updated!',
-                    text: 'User status has been updated successfully.',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            },
-            error: function (xhr, status, error) {
-                console.log(xhr.responseJSON);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: xhr.responseJSON?.error || 'Failed to update status. Please try again.',
-                });
-            }
-        });
+      });
     });
 
-    // // Delete user button click handler
-    // $('#utable tbody').on('click', 'button.deleteBtn', function (e) {
-    //     e.preventDefault();
-    //     var table = $('#utable').DataTable();
-    //     var id = $(this).data('id');
-    //     var $row = $(this).closest('tr');
-    //     console.log(id);
-
-    //     Swal.fire({
-    //         title: 'Are you sure?',
-    //         text: 'You won\'t be able to revert this!',
-    //         icon: 'warning',
-    //         showCancelButton: true,
-    //         confirmButtonColor: '#d33',
-    //         cancelButtonColor: '#3085d6',
-    //         confirmButtonText: 'Yes, delete it!'
-    //     }).then((result) => {
-    //         if (result.isConfirmed) {
-    //             // Show loading
-    //             Swal.fire({
-    //                 title: 'Deleting User...',
-    //                 allowOutsideClick: false,
-    //                 didOpen: () => {
-    //                     Swal.showLoading();
-    //                 }
-    //             });
-
-    //             $.ajax({
-    //                 method: "DELETE",
-    //                 : `${url}api/users/users/${id}`,
-    //                 dataType: "json",
-    //                 success: function (data) {
-    //                     console.log(data);
-    //                     table.ajax.reload();
-
-    //                     Swal.fire({
-    //                         icon: 'success',
-    //                         title: 'Deleted!',
-    //                         text: 'User has been deleted successfully.',
-    //                         timer: 2000,
-    //                         showConfirmButton: false
-    //                     });
-    //                 },
-    //                 error: function (xhr, status, error) {
-    //                     console.log(xhr.responseJSON);
-    //                     Swal.fire({
-    //                         icon: 'error',
-    //                         title: 'Error!',
-    //                         text: xhr.responseJSON?.error || 'Failed to delete user. Please try again.',
-    //                     });
-    //                 }
-    //             });
-    //         }
-    //     });
-    // });
-
-    // Search functionality
-    $('#userSearch').on('keyup', function () {
-        var table = $('#utable').DataTable();
-        table.search(this.value).draw();
-    });
-
-    // Search button functionality
-    $('#searchButton').on('click', function () {
-        var table = $('#utable').DataTable();
-        table.search($('#userSearch').val()).draw();
-    });
-
+    // ========== MODAL CLEANUP ========== //
     // Reset forms when modals are hidden
     $('#userModal').on('hidden.bs.modal', function () {
-        $('#uform')[0].reset();
-        $('#userSubmit').show();
-        $('#userUpdate').hide();
-        $('#userModalLabel').text('Add New User');
-        $('#userId').remove();
-        $('#role-description').text('');
-        // Reset password field requirement
-        $('#user_password').prop('required', true);
+      $('#uform')[0].reset();
+      $('#userModalLabel').text('Add New User');
+      $('#role-description').text('');
+      // Reset new fields
+      $('#user_title').val('');
+      $('#user_fname').val('');
+      $('#user_lname').val('');
+      // Clear file input
+      $('#user_image').val('');
     });
-
     $('#roleModal').on('hidden.bs.modal', function () {
-        $('#roleForm')[0].reset();
+      $('#roleForm')[0].reset();
     });
-
     $('#statusModal').on('hidden.bs.modal', function () {
-        $('#statusForm')[0].reset();
+      $('#statusForm')[0].reset();
     });
+    
+    // ========== FORM VALIDATION ========== //
+    // jQuery Validation Configuration
+    $('#uform').validate({
+      rules: {
+        name: {
+          required: true,
+          minlength: 2,
+          maxlength: 50,
+          pattern: /^[a-zA-Z\s]+$/
+        },
+        email: {
+          required: true,
+          email: true
+        },
+        password: {
+          required: true,
+          minlength: 6,
+          maxlength: 50
+        },
+        title: {
+          maxlength: 20
+        },
+        fname: {
+          required: true,
+          minlength: 2,
+          maxlength: 50,
+          pattern: /^[a-zA-Z\s]+$/
+        },
+        lname: {
+          required: true,
+          minlength: 2,
+          maxlength: 50,
+          pattern: /^[a-zA-Z\s]+$/
+        },
+        addressline: {
+          maxlength: 100
+        },
+        town: {
+          maxlength: 50,
+          pattern: /^[a-zA-Z\s]+$/
+        },
+        phone: {
+          pattern: /^[\d\s\-\+\(\)]+$/
+        },
+        role: {
+          required: true
+        }
+      },
+      messages: {
+        name: {
+          required: "Please enter the user's name",
+          minlength: "Name must be at least 2 characters long",
+          maxlength: "Name cannot exceed 50 characters",
+          pattern: "Name can only contain letters and spaces"
+        },
+        email: {
+          required: "Please enter an email address",
+          email: "Please enter a valid email address"
+        },
+        password: {
+          required: "Please enter a password",
+          minlength: "Password must be at least 6 characters long",
+          maxlength: "Password cannot exceed 50 characters"
+        },
+        title: {
+          maxlength: "Title cannot exceed 20 characters"
+        },
+        fname: {
+          required: "Please enter the user's first name",
+          minlength: "First name must be at least 2 characters long",
+          maxlength: "First name cannot exceed 50 characters",
+          pattern: "First name can only contain letters and spaces"
+        },
+        lname: {
+          required: "Please enter the user's last name",
+          minlength: "Last name must be at least 2 characters long",
+          maxlength: "Last name cannot exceed 50 characters",
+          pattern: "Last name can only contain letters and spaces"
+        },
+        addressline: {
+          maxlength: "Address cannot exceed 100 characters"
+        },
+        town: {
+          maxlength: "Town cannot exceed 50 characters",
+          pattern: "Town can only contain letters and spaces"
+        },
+        phone: {
+          pattern: "Please enter a valid phone number"
+        },
+        role: {
+          required: "Please select a role"
+        }
+      },
+      errorElement: 'span',
+      errorClass: 'error',
+      highlight: function(element) {
+        $(element).addClass('is-invalid').removeClass('is-valid');
+      },
+      unhighlight: function(element) {
+        $(element).removeClass('is-invalid').addClass('is-valid');
+      },
+      errorPlacement: function(error, element) {
+        error.insertAfter(element);
+      },
+      submitHandler: function(form) {
+        // Form is valid, proceed with submission
+        return true;
+      },
+      success: function(label, element) {
+        // Remove excessive logging - only log on first success
+        // console.log('Validation success for:', element.name);
+      }
+    });
+    
+    // ========== PASSWORD STRENGTH ========== //
+    // Simple password strength indicator
+    $('#user_password').on('input', function() {
+      const password = $(this).val();
+      const strengthDiv = $('#password-strength');
+      
+      if (password.length === 0) {
+        strengthDiv.text('').removeClass('weak medium strong');
+        return;
+      }
+      
+      let strength = 0;
+      if (password.length >= 6) strength += 1;
+      if (/[a-z]/.test(password)) strength += 1;
+      if (/[A-Z]/.test(password)) strength += 1;
+      if (/[0-9]/.test(password)) strength += 1;
+      
+      if (strength <= 2) {
+        strengthDiv.text('Weak password').removeClass('medium strong').addClass('weak');
+      } else if (strength <= 3) {
+        strengthDiv.text('Medium strength password').removeClass('weak strong').addClass('medium');
+      } else {
+        strengthDiv.text('Strong password').removeClass('weak medium').addClass('strong');
+      }
+    });
+    
+    // ========== REAL-TIME VALIDATION ========== //
+    // Real-time validation feedback
+    $('#uform input, #uform select').on('blur', function() {
+      $(this).valid();
+    });
+    
+    // Clear validation on modal close
+    $('#userModal').on('hidden.bs.modal', function() {
+      $('#uform').validate().resetForm();
+      $('#uform .form-control').removeClass('is-valid is-invalid');
+      $('#password-strength').text('').removeClass('weak medium strong');
+    });
+    
+    // Debugging code removed for cleaner production
 });
+// Tooltip initialization removed for cleaner code
 </script>
