@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="assets/css/bootstrap.min.css">
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/responsive.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
   <style>
     body {
       font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -38,8 +37,112 @@
       color: #333;
       margin-bottom: 10px;
     }
+    /* Search Section Styles */
+    .search-section {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 25px;
+      margin-bottom: 30px;
+      border: 1px solid #e0e0e0;
+    }
+    .search-section h3 {
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .search-form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      align-items: end;
+    }
+    .search-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .search-group label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #555;
+      margin-bottom: 5px;
+    }
+    .search-input {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      background: #fff;
+      color: #333;
+      transition: border-color 0.2s;
+    }
+    .search-input:focus {
+      border-color: #333;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(51, 51, 51, 0.1);
+    }
+    .search-select {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      background: #fff;
+      color: #333;
+      transition: border-color 0.2s;
+    }
+    .search-select:focus {
+      border-color: #333;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(51, 51, 51, 0.1);
+    }
+    .search-buttons {
+      display: flex;
+      gap: 10px;
+      align-items: end;
+    }
+    .btn-search {
+      background: #333;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .btn-search:hover {
+      background: #555;
+    }
+    .btn-clear {
+      background: #6c757d;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .btn-clear:hover {
+      background: #5a6268;
+    }
+    .search-results-info {
+      background: #e3f2fd;
+      border: 1px solid #bbdefb;
+      border-radius: 6px;
+      padding: 12px 15px;
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+      color: #1976d2;
+      display: none;
+    }
     .orders-table-container {
       overflow-x: auto;
+      max-height: 600px;
+      overflow-y: auto;
     }
     #ordersTable {
       width: 100% !important;
@@ -57,6 +160,9 @@
       border-bottom: 2px solid #e0e0e0;
       padding: 14px 10px;
       font-size: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
     #ordersTable tbody td {
       padding: 12px 10px;
@@ -89,62 +195,6 @@
       outline: none;
       background: #fff;
     }
-    /* DataTables custom style */
-    .dataTables_wrapper .dataTables_paginate .paginate_button {
-      border-radius: 4px;
-      border: 1px solid #e0e0e0;
-      background: #f8f9fa;
-      color: #333 !important;
-      margin: 0 2px;
-      padding: 4px 12px;
-      font-size: 0.95em;
-      transition: background 0.2s;
-    }
-    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-      background: #333 !important;
-      color: #fff !important;
-      border-color: #333;
-    }
-    .dataTables_wrapper .dataTables_length select {
-      border-radius: 4px;
-      border: 1px solid #ddd;
-      padding: 4px 10px;
-      font-size: 0.95em;
-      background: #fff;
-      color: #333;
-    }
-    .dataTables_wrapper .dataTables_filter input {
-      border-radius: 4px;
-      border: 1px solid #ddd;
-      padding: 4px 10px;
-      font-size: 0.95em;
-      background: #fff;
-      color: #333;
-      min-width: 220px;
-      width: 100%;
-      max-width: 320px;
-    }
-    /* Responsive tweaks */
-    @media (max-width: 900px) {
-      .admin-orders-wrapper {
-        padding: 15px 2vw;
-      }
-      .section-header h2 {
-        font-size: 1.5rem;
-      }
-    }
-    @media (max-width: 600px) {
-      .admin-orders-wrapper {
-        padding: 5px 0.5vw;
-      }
-      .section-header {
-        padding-bottom: 10px;
-      }
-      #ordersTable thead th, #ordersTable tbody td {
-        font-size: 0.92rem;
-        padding: 8px 4px;
-      }
-    }
     /* Loading spinner */
     .loading-state {
       text-align: center;
@@ -163,6 +213,57 @@
       color: #d32f2f;
       font-size: 1.1em;
     }
+    /* Infinite scroll loading indicator */
+    .infinite-scroll-loading {
+      text-align: center;
+      padding: 20px 0;
+      color: #666;
+      font-size: 0.9em;
+    }
+    .infinite-scroll-loading .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #333;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    /* Responsive tweaks */
+    @media (max-width: 900px) {
+      .admin-orders-wrapper {
+        padding: 15px 2vw;
+      }
+      .section-header h2 {
+        font-size: 1.5rem;
+      }
+      .search-form {
+        grid-template-columns: 1fr;
+      }
+      .search-buttons {
+        justify-content: center;
+      }
+    }
+    @media (max-width: 600px) {
+      .admin-orders-wrapper {
+        padding: 5px 0.5vw;
+      }
+      .section-header {
+        padding-bottom: 10px;
+      }
+      .search-section {
+        padding: 15px;
+      }
+      #ordersTable thead th, #ordersTable tbody td {
+        font-size: 0.92rem;
+        padding: 8px 4px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -171,6 +272,47 @@
       <h2>All Orders <span style="font-size:1rem;font-weight:400;color:#888;">(Admin)</span></h2>
       <p style="color:#666;font-size:1.05em;font-weight:300;">Manage and review all customer orders. Update status as needed.</p>
     </div>
+    
+    <!-- Search Section -->
+    <div class="search-section">
+      <h3>Search & Filter Orders</h3>
+      <form class="search-form" id="searchForm">
+        <div class="search-group">
+          <label for="orderId">Order ID</label>
+          <input type="text" id="orderId" class="search-input" placeholder="Enter order ID">
+        </div>
+        <div class="search-group">
+          <label for="customerId">Customer ID</label>
+          <input type="text" id="customerId" class="search-input" placeholder="Enter customer ID">
+        </div>
+        <div class="search-group">
+          <label for="statusFilter">Status</label>
+          <select id="statusFilter" class="search-select">
+            <option value="">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Shipped">Shipped</option>
+            <option value="Delivered">Delivered</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="search-group">
+          <label for="dateFrom">Date From</label>
+          <input type="date" id="dateFrom" class="search-input">
+        </div>
+        <div class="search-group">
+          <label for="dateTo">Date To</label>
+          <input type="date" id="dateTo" class="search-input">
+        </div>
+        <div class="search-buttons">
+          <button type="submit" class="btn-search">Search</button>
+          <button type="button" class="btn-clear" id="clearSearch">Clear</button>
+        </div>
+      </form>
+    </div>
+    
+    <!-- Search Results Info -->
+    <div class="search-results-info" id="searchResultsInfo"></div>
+    
     <div class="orders-table-container">
       <table id="ordersTable" class="display">
         <thead>
@@ -190,70 +332,239 @@
           <!-- Data will be inserted here -->
         </tbody>
       </table>
+      <div id="infiniteScrollLoading" class="infinite-scroll-loading" style="display: none;">
+        <div class="spinner"></div>
+        Loading more orders...
+      </div>
     </div>
   </div>
   <script src="assets/js/vendor/jquery-3.3.1.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
   <script>
     $(document).ready(function() {
+      let currentPage = 1;
+      let isLoading = false;
+      let hasMoreData = true;
+      const pageSize = 20;
+      let searchParams = {};
+      
       // Show loading spinner
       $('#ordersTable tbody').html('<tr><td colspan="9"><div class="loading-state"><span class="loading-spinner">Loading orders...</span></div></td></tr>');
-      $.get('/api/orders/admin/all', function(response) {
-        if (response.success) {
-          const statusOptions = ['Pending', 'Shipped', 'Delivered', 'Cancelled'];
-          const rows = response.data.map(order => {
-            const itemsHtml = order.items.map(item =>
-              `<div class=\"order-items-list\">${item.item_name} (x${item.quantity}) - \u20b1${item.price}</div>`
-            ).join('');
-            const statusDropdown = `
-              <select class=\"order-status-dropdown\" data-order-id=\"${order.orderinfo_id}\">
-                ${statusOptions.map(opt => `<option value=\"${opt}\"${order.status === opt ? ' selected' : ''}>${opt}</option>`).join('')}
-              </select>
-            `;
-            return `
-              <tr>
-                <td>${order.orderinfo_id}</td>
-                <td>${order.customer_id}</td>
-                <td>${order.date_placed || ''}</td>
-                <td>${order.date_shipped || ''}</td>
-                <td>${order.date_delivered || ''}</td>
-                <td>${statusDropdown}</td>
-                <td>${order.region}</td>
-                <td>\u20b1${order.rate}</td>
-                <td>${itemsHtml}</td>
-              </tr>
-            `;
-          }).join('');
-          $('#ordersTable tbody').html(rows);
-          $('#ordersTable').DataTable({
-            responsive: true,
-            pageLength: 10,
-            lengthMenu: [5, 10, 25, 50],
-            language: {
-              emptyTable: '<div class="error-message">No orders found.</div>'
-            }
-          });
-        } else {
-          $('#ordersTable tbody').html('<tr><td colspan="9"><div class="error-message">Failed to load orders.</div></td></tr>');
+      
+      // Load initial data
+      loadOrders(currentPage);
+      
+      // Search form submission
+      $('#searchForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        // Get form values
+        const orderId = $('#orderId').val().trim();
+        const customerId = $('#customerId').val().trim();
+        const status = $('#statusFilter').val();
+        const dateFrom = $('#dateFrom').val();
+        const dateTo = $('#dateTo').val();
+        
+        // Validate date range
+        if (dateFrom && dateTo && dateFrom > dateTo) {
+          alert('Date From cannot be later than Date To');
+          return;
         }
-      }).fail(function() {
-        $('#ordersTable tbody').html('<tr><td colspan="9"><div class="error-message">Connection error. Please try again.</div></td></tr>');
+        
+        searchParams = {
+          orderId: orderId,
+          customerId: customerId,
+          status: status,
+          dateFrom: dateFrom,
+          dateTo: dateTo
+        };
+        
+        console.log('Form submitted with params:', searchParams);
+        
+        // Reset pagination
+        currentPage = 1;
+        hasMoreData = true;
+        
+        // Show search info if any filters are applied
+        const activeFilters = Object.values(searchParams).filter(val => val !== '').length;
+        if (activeFilters > 0) {
+          const filterText = [];
+          if (searchParams.orderId) filterText.push(`Order ID: ${searchParams.orderId}`);
+          if (searchParams.customerId) filterText.push(`Customer ID: ${searchParams.customerId}`);
+          if (searchParams.status) filterText.push(`Status: ${searchParams.status}`);
+          if (searchParams.dateFrom) filterText.push(`From: ${searchParams.dateFrom}`);
+          if (searchParams.dateTo) filterText.push(`To: ${searchParams.dateTo}`);
+          
+          $('#searchResultsInfo').html(`<strong>Search Results:</strong> ${filterText.join(', ')}`).show();
+        } else {
+          $('#searchResultsInfo').hide();
+        }
+        
+        loadOrders(currentPage);
       });
+      
+      // Clear search
+      $('#clearSearch').on('click', function() {
+        $('#searchForm')[0].reset();
+        searchParams = {};
+        currentPage = 1;
+        hasMoreData = true;
+        $('#searchResultsInfo').hide();
+        loadOrders(currentPage);
+      });
+      
+
+      
+      // Infinite scroll handler
+      $('.orders-table-container').on('scroll', function() {
+        const container = $(this);
+        const scrollTop = container.scrollTop();
+        const scrollHeight = container[0].scrollHeight;
+        const clientHeight = container.height();
+        
+        // Check if we're near the bottom (within 100px)
+        if (scrollTop + clientHeight >= scrollHeight - 100 && !isLoading && hasMoreData) {
+          loadOrders(currentPage + 1);
+        }
+      });
+      
+      function loadOrders(page) {
+        if (isLoading) return;
+        
+        isLoading = true;
+        
+        if (page === 1) {
+          $('#ordersTable tbody').html('<tr><td colspan="9"><div class="loading-state"><span class="loading-spinner">Loading orders...</span></div></td></tr>');
+        } else {
+          $('#infiniteScrollLoading').show();
+        }
+        
+        // Build query parameters
+        let queryParams = `page=${page}&limit=${pageSize}`;
+        
+        // Add search parameters
+        if (searchParams.orderId) queryParams += `&orderId=${encodeURIComponent(searchParams.orderId)}`;
+        if (searchParams.customerId) queryParams += `&customerId=${encodeURIComponent(searchParams.customerId)}`;
+        if (searchParams.status) queryParams += `&status=${encodeURIComponent(searchParams.status)}`;
+        if (searchParams.dateFrom) queryParams += `&dateFrom=${encodeURIComponent(searchParams.dateFrom)}`;
+        if (searchParams.dateTo) queryParams += `&dateTo=${encodeURIComponent(searchParams.dateTo)}`;
+        
+        console.log('Search Params:', searchParams);
+        console.log('Query URL:', `/api/orders/admin/all?${queryParams}`);
+        
+        $.get(`/api/orders/admin/all?${queryParams}`, function(response) {
+          console.log('Server Response:', response);
+          if (response.success) {
+            const statusOptions = ['Pending', 'Shipped', 'Delivered', 'Cancelled'];
+            
+            if (page === 1) {
+              // Clear table for first page
+              $('#ordersTable tbody').empty();
+            }
+            
+            if (response.data.length === 0) {
+              hasMoreData = false;
+              if (page === 1) {
+                const noResultsMessage = Object.keys(searchParams).some(key => searchParams[key]) 
+                  ? 'No orders found matching your search criteria.' 
+                  : 'No orders found.';
+                $('#ordersTable tbody').html(`<tr><td colspan="9"><div class="error-message">${noResultsMessage}</div></td></tr>`);
+              }
+            } else {
+              const rows = response.data.map(order => {
+                const itemsHtml = order.items.map(item =>
+                  `<div class="order-items-list">${item.item_name} (x${item.quantity}) - ₱${item.price}</div>`
+                ).join('');
+                const statusDropdown = `
+                  <select class="order-status-dropdown" data-order-id="${order.orderinfo_id}">
+                    ${statusOptions.map(opt => `<option value="${opt}"${order.status === opt ? ' selected' : ''}>${opt}</option>`).join('')}
+                  </select>
+                `;
+                return `
+                  <tr>
+                    <td>${order.orderinfo_id}</td>
+                    <td>${order.customer_id}</td>
+                    <td>${order.date_placed || ''}</td>
+                    <td>${order.date_shipped || ''}</td>
+                    <td>${order.date_delivered || ''}</td>
+                    <td>${statusDropdown}</td>
+                    <td>${order.region}</td>
+                    <td>₱${order.rate}</td>
+                    <td>${itemsHtml}</td>
+                  </tr>
+                `;
+              }).join('');
+              
+              if (page === 1) {
+                $('#ordersTable tbody').html(rows);
+              } else {
+                $('#ordersTable tbody').append(rows);
+              }
+              
+              currentPage = page;
+              
+              // Check if we have more data
+              if (response.data.length < pageSize) {
+                hasMoreData = false;
+              }
+            }
+          } else {
+            if (page === 1) {
+              $('#ordersTable tbody').html('<tr><td colspan="9"><div class="error-message">Failed to load orders.</div></td></tr>');
+            }
+          }
+        }).fail(function(xhr, status, error) {
+          console.error('AJAX Error:', {xhr, status, error});
+          if (page === 1) {
+            $('#ordersTable tbody').html('<tr><td colspan="9"><div class="error-message">Connection error. Please try again.</div></td></tr>');
+          }
+        }).always(function() {
+          isLoading = false;
+          $('#infiniteScrollLoading').hide();
+        });
+      }
 
       // Handle status change
       $('#ordersTable').on('change', '.order-status-dropdown', function() {
         const orderId = $(this).data('order-id');
         const newStatus = $(this).val();
+        const $dropdown = $(this);
+        
+        console.log('Updating order status:', { orderId, newStatus });
+        
         $.ajax({
           url: `/api/orders/${orderId}/status`,
           method: 'PUT',
           contentType: 'application/json',
           data: JSON.stringify({ newStatus }),
           success: function(res) {
-            alert('Order status updated!');
+            console.log('Status update response:', res);
+            if (res.success) {
+              alert(res.message || 'Order status updated successfully!');
+            } else {
+              alert(res.message || 'Order status updated successfully!');
+            }
           },
-          error: function() {
-            alert('Failed to update order status.');
+          error: function(xhr, status, error) {
+            console.error('Status update error:', { xhr, status, error });
+            console.error('Response text:', xhr.responseText);
+            
+            // Try to parse the response to get a better error message
+            let errorMessage = 'Failed to update order status.';
+            try {
+              const response = JSON.parse(xhr.responseText);
+              if (response.message) {
+                errorMessage = response.message;
+              }
+            } catch (e) {
+              // If we can't parse the response, use the default message
+            }
+            
+            alert(errorMessage);
+            
+            // Revert the dropdown to its previous value
+            // We need to find the previous value from the original data
+            // For now, just reload the orders to refresh the dropdown
+            loadOrders(currentPage);
           }
         });
       });

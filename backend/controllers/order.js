@@ -71,6 +71,9 @@ const createOrder = (req, res) => {
             });
           }
 
+          // Send order confirmation email with receipt
+          sendOrderConfirmationEmail(orderinfo_id, customer_id, items);
+
           res.json({ success: true, message: 'Order created', orderinfo_id });
         });
       });
@@ -152,6 +155,11 @@ const getOrdersByCustomer = (req, res) => {
   const updateOrderStatus = (req, res) => {
     const { orderId } = req.params;
     const { newStatus } = req.body;
+    
+    console.log('=== UPDATE ORDER STATUS CALLED ===');
+    console.log('Request params:', req.params);
+    console.log('Request body:', req.body);
+    console.log('Updating order status:', { orderId, newStatus });
   
     const sql = `UPDATE orderinfo SET status = ? WHERE orderinfo_id = ?`;
     db.query(sql, [newStatus, orderId], (err, updateResult) => {
@@ -164,43 +172,85 @@ const getOrdersByCustomer = (req, res) => {
         return res.status(404).json({ message: 'Order not found.' });
       }
   
-      const getUserSql = `
-        SELECT u.email, u.name, o.orderinfo_id
+            // Get complete order data for email and PDF receipt
+      const getOrderDataSql = `
+        SELECT 
+          u.email, 
+          u.name, 
+          o.orderinfo_id,
+          o.date_placed,
+          o.status,
+          s.region,
+          s.rate
         FROM orderinfo o
-        JOIN users u ON o.customer_id = u.id
+        LEFT JOIN customer c ON o.customer_id = c.customer_id
+        LEFT JOIN users u ON c.user_id = u.id
+        LEFT JOIN shipping s ON o.shipping_id = s.shipping_id
         WHERE o.orderinfo_id = ?
       `;
-  
-      db.query(getUserSql, [orderId], async (err, results) => {
+
+      db.query(getOrderDataSql, [orderId], async (err, results) => {
         if (err) {
-          console.error('Fetch error:', err);
-          return res.status(500).json({ message: 'Error getting user' });
+          console.error('Fetch order data error:', err);
+          return res.json({ success: true, message: 'Order updated successfully, but email notification failed.' });
         }
-  
-        if (results.length === 0) {
-          return res.status(404).json({ message: 'User not found.' });
+
+        console.log('Order data lookup results for order', orderId, ':', results);
+
+        if (results.length === 0 || !results[0].email) {
+          console.log('User not found or no email for order:', orderId);
+          return res.json({ success: true, message: 'Order updated successfully, but email notification failed.' });
         }
-  
-        const { email, name } = results[0];
-  
-        try {
-          await sendEmail({
-            email,
-            subject: `Your Order #${orderId} Status Updated`,
-            message: `
-              Hi ${name || 'Customer'},<br><br>
-              Your order <strong>#${orderId}</strong> has been updated to <strong>${newStatus}</strong>.<br>
-              Thank you for shopping with <strong>Drift n' Dash</strong>!<br><br>
-              Best regards,<br>
-              Drift n' Dash Team
-            `
-          });
-  
-          res.json({ message: 'Order updated and email sent.' });
-        } catch (emailErr) {
-          console.error('Email failed:', emailErr);
-          res.status(500).json({ message: 'Email sending failed.' });
-        }
+
+        const { email, name, date_placed, region, rate } = results[0];
+
+        // Get order items for PDF receipt
+        const getItemsSql = `
+          SELECT 
+            i.item_name,
+            i.sell_price AS price,
+            ol.quantity
+          FROM orderline ol
+          JOIN item i ON i.item_id = ol.item_id
+          WHERE ol.orderinfo_id = ?
+        `;
+
+        db.query(getItemsSql, [orderId], async (err, items) => {
+          if (err) {
+            console.error('Fetch items error:', err);
+            // Continue without items for PDF
+          }
+
+          // Prepare order data for PDF receipt
+          const orderData = {
+            orderinfo_id: orderId,
+            date_placed,
+            status: newStatus,
+            region,
+            rate,
+            items: items || []
+          };
+
+          try {
+            await sendEmail({
+              email,
+              subject: `Your Order #${orderId} Status Updated`,
+              type: 'orderStatus',
+              data: {
+                name: name || 'Customer',
+                orderId: orderId,
+                newStatus: newStatus
+              },
+              attachReceipt: true,
+              orderData: orderData
+            });
+
+            res.json({ success: true, message: 'Order updated and email with receipt sent successfully.' });
+          } catch (emailErr) {
+            console.error('Email failed:', emailErr);
+            res.json({ success: true, message: 'Order updated successfully, but email notification failed.' });
+          }
+        });
       });
     });
   };
@@ -295,9 +345,54 @@ const getOrderById = (req, res) => {
   });
 };
 
-// ADMIN: Get all orders
+// ADMIN: Get all orders with search and pagination
 const getAllOrders = (req, res) => {
-  // Get all orders with shipping info
+  const { 
+    page = 1, 
+    limit = 20, 
+    orderId, 
+    customerId, 
+    status, 
+    dateFrom, 
+    dateTo 
+  } = req.query;
+
+  // Build WHERE clause for search filters
+  let whereConditions = [];
+  let queryParams = [];
+
+  if (orderId) {
+    whereConditions.push('o.orderinfo_id = ?');
+    queryParams.push(orderId);
+  }
+
+  if (customerId) {
+    whereConditions.push('o.customer_id = ?');
+    queryParams.push(customerId);
+  }
+
+  if (status) {
+    whereConditions.push('o.status = ?');
+    queryParams.push(status);
+  }
+
+  if (dateFrom) {
+    whereConditions.push('DATE(o.date_placed) >= ?');
+    queryParams.push(dateFrom);
+  }
+
+  if (dateTo) {
+    whereConditions.push('DATE(o.date_placed) <= ?');
+    queryParams.push(dateTo);
+  }
+
+  const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+
+  // Calculate pagination
+  const offset = (parseInt(page) - 1) * parseInt(limit);
+  const limitClause = `LIMIT ${parseInt(limit)} OFFSET ${offset}`;
+
+  // Get orders with search filters and pagination
   const sql = `
     SELECT 
       o.orderinfo_id,
@@ -310,14 +405,24 @@ const getAllOrders = (req, res) => {
       s.rate
     FROM orderinfo o
     JOIN shipping s ON o.shipping_id = s.shipping_id
+    ${whereClause}
     ORDER BY o.date_placed DESC
+    ${limitClause}
   `;
 
-  db.query(sql, (err, orders) => {
+  console.log('Search Parameters:', { orderId, customerId, status, dateFrom, dateTo });
+  console.log('SQL Query:', sql);
+  console.log('Query Parameters:', queryParams);
+
+  db.query(sql, queryParams, (err, orders) => {
     if (err) {
       console.error("Error fetching all orders:", err);
       return res.status(500).json({ success: false, message: "Error fetching orders" });
     }
+
+    console.log('Orders found:', orders.length);
+    console.log('First order sample:', orders[0]);
+    console.log('Customer IDs in orders:', orders.map(o => o.customer_id));
 
     if (!orders.length) {
       return res.json({ success: true, data: [] });
@@ -364,6 +469,85 @@ const getAllOrders = (req, res) => {
       res.json({ success: true, data: final });
     });
   });
+};
+
+// Send order confirmation email with PDF receipt
+const sendOrderConfirmationEmail = async (orderinfo_id, customer_id, items) => {
+  try {
+    // Get customer and order details
+    const getOrderDataSql = `
+      SELECT 
+        u.email, 
+        u.name, 
+        o.orderinfo_id,
+        o.date_placed,
+        o.status,
+        s.region,
+        s.rate
+      FROM orderinfo o
+      LEFT JOIN customer c ON o.customer_id = c.customer_id
+      LEFT JOIN users u ON c.user_id = u.id
+      LEFT JOIN shipping s ON o.shipping_id = s.shipping_id
+      WHERE o.orderinfo_id = ?
+    `;
+
+    db.query(getOrderDataSql, [orderinfo_id], async (err, results) => {
+      if (err || results.length === 0 || !results[0].email) {
+        console.error('Failed to get order data for email:', err);
+        return;
+      }
+
+      const { email, name, date_placed, status, region, rate } = results[0];
+
+      // Get item details for PDF receipt
+      const getItemsSql = `
+        SELECT 
+          i.item_name,
+          i.sell_price AS price,
+          ol.quantity
+        FROM orderline ol
+        JOIN item i ON i.item_id = ol.item_id
+        WHERE ol.orderinfo_id = ?
+      `;
+
+      db.query(getItemsSql, [orderinfo_id], async (err, orderItems) => {
+        if (err) {
+          console.error('Failed to get items for email:', err);
+        }
+
+        // Prepare order data for PDF receipt
+        const orderData = {
+          orderinfo_id,
+          date_placed,
+          status,
+          region,
+          rate,
+          items: orderItems || []
+        };
+
+        try {
+          await sendEmail({
+            email,
+            subject: `Order Confirmation #${orderinfo_id} - LenSheem`,
+            type: 'orderStatus',
+            data: {
+              name: name || 'Customer',
+              orderId: orderinfo_id,
+              newStatus: status
+            },
+            attachReceipt: true,
+            orderData: orderData
+          });
+
+          console.log(`Order confirmation email sent for order #${orderinfo_id}`);
+        } catch (emailErr) {
+          console.error('Failed to send order confirmation email:', emailErr);
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Error in sendOrderConfirmationEmail:', error);
+  }
 };
 
 module.exports = {

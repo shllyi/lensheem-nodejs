@@ -175,6 +175,45 @@
     .password-strength.strong {
       color: #28a745;
     }
+    
+    /* Sorting Styles */
+    .sortable {
+      cursor: pointer;
+      position: relative;
+      user-select: none;
+    }
+    
+    .sortable:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .sortable i {
+      margin-left: 5px;
+      font-size: 12px;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+    
+    .sortable:hover i {
+      opacity: 1;
+    }
+    
+    .sortable.sort-asc i {
+      opacity: 1;
+      transform: rotate(180deg);
+    }
+    
+    .sortable.sort-desc i {
+      opacity: 1;
+    }
+    
+    .no-sort {
+      cursor: default;
+    }
+    
+    .no-sort i {
+      display: none;
+    }
   </style>
 </head>
 
@@ -210,19 +249,19 @@
           <table id="utable" class="table table-striped table-bordered table-hover" style="width:100%">
             <thead class="thead-dark">
               <tr>
-                <th>User ID</th>
-                <th>Customer ID</th>
-                <th>Photo</th>
-                <th>Title</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Email</th>
-                <th>AddressLine</th>
-                <th>Town</th>
-                <th>Phone</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th class="sortable" data-sort="user_id">User ID <i class="fas fa-sort"></i></th>
+                <th class="sortable" data-sort="customer_id">Customer ID <i class="fas fa-sort"></i></th>
+                <th class="no-sort">Photo</th>
+                <th class="sortable" data-sort="title">Title <i class="fas fa-sort"></i></th>
+                <th class="sortable" data-sort="fname">First Name <i class="fas fa-sort"></i></th>
+                <th class="sortable" data-sort="lname">Last Name <i class="fas fa-sort"></i></th>
+                <th class="sortable" data-sort="email">Email <i class="fas fa-sort"></i></th>
+                <th class="sortable" data-sort="addressline">AddressLine <i class="fas fa-sort"></i></th>
+                <th class="sortable" data-sort="town">Town <i class="fas fa-sort"></i></th>
+                <th class="sortable" data-sort="phone">Phone <i class="fas fa-sort"></i></th>
+                <th class="sortable" data-sort="role">Role <i class="fas fa-sort"></i></th>
+                <th class="sortable" data-sort="status">Status <i class="fas fa-sort"></i></th>
+                <th class="no-sort">Actions</th>
               </tr>
             </thead>
             <tbody id="ubody">
@@ -384,6 +423,10 @@
     let loading = false;
     let allLoaded = false;
     let searchTerm = '';
+    
+    // ========== SORTING VARIABLES ========== //
+    let currentSort = { field: 'user_id', direction: 'asc' };
+    let allUsers = []; // Store all users for client-side sorting
 
     // ========== IMAGE HANDLING ========== //
     function handleImgError(img) {
@@ -434,10 +477,64 @@
       </tr>`;
     }
 
+    // ========== SORTING FUNCTIONS ========== //
+    // Sort users array
+    function sortUsers(users, field, direction) {
+      return users.sort((a, b) => {
+        let aVal = a[field] || '';
+        let bVal = b[field] || '';
+        
+        // Convert to string for comparison
+        aVal = String(aVal).toLowerCase();
+        bVal = String(bVal).toLowerCase();
+        
+        if (direction === 'asc') {
+          return aVal.localeCompare(bVal);
+        } else {
+          return bVal.localeCompare(aVal);
+        }
+      });
+    }
+    
+    // Update sort indicators
+    function updateSortIndicators(field, direction) {
+      $('.sortable').removeClass('sort-asc sort-desc');
+      $(`.sortable[data-sort="${field}"]`).addClass(direction === 'asc' ? 'sort-asc' : 'sort-desc');
+    }
+    
+    // Render sorted users
+    function renderSortedUsers() {
+      $('#ubody').empty();
+      if (allUsers.length === 0) {
+        $('#ubody').append('<tr><td colspan="12" class="text-center">No users found.</td></tr>');
+        return;
+      }
+      
+      // Apply search filter if needed
+      let filteredUsers = allUsers;
+      if (searchTerm) {
+        filteredUsers = allUsers.filter(user => 
+          (user.fname && user.fname.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (user.lname && user.lname.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (user.phone && user.phone.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (user.town && user.town.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+      }
+      
+      // Apply sorting
+      const sortedUsers = sortUsers(filteredUsers, currentSort.field, currentSort.direction);
+      
+      // Render users
+      sortedUsers.forEach(user => {
+        $('#ubody').append(renderUserRow(user));
+      });
+    }
+    
     // ========== DATA FETCHING ========== //
     // Fetch users from API
     function fetchUsers(page, append = true) {
-      if (loading || allLoaded) return;
+      if (loading) return;
       loading = true;
       $('#ubody').append('<tr class="loading-row"><td colspan="12" class="text-center">Loading...</td></tr>');
       let apiUrl = `${url}api/users/users?page=${page}&limit=${pageSize}`;
@@ -450,14 +547,17 @@
           $('.loading-row').remove();
           let users = data.rows || data.data || data;
           if (!Array.isArray(users)) users = [];
-          if (users.length < pageSize) allLoaded = true;
-          if (!append) $('#ubody').empty();
-          users.forEach(user => {
-            $('#ubody').append(renderUserRow(user));
-          });
-          if (users.length === 0 && page === 1) {
-            $('#ubody').append('<tr><td colspan="12" class="text-center">No users found.</td></tr>');
+          
+          if (!append) {
+            allUsers = users;
+          } else {
+            allUsers = allUsers.concat(users);
           }
+          
+          if (users.length < pageSize) allLoaded = true;
+          
+          // Render sorted users
+          renderSortedUsers();
           loading = false;
         },
         error: function () {
@@ -475,8 +575,31 @@
     // ========== INITIALIZATION ========== //
     // Initial load of users
     fetchUsers(currentPage);
+    
+    // Initialize sort indicators
+    updateSortIndicators(currentSort.field, currentSort.direction);
 
     // ========== EVENT HANDLERS ========== //
+    // Column sorting click handler
+    $(document).on('click', '.sortable', function(e) {
+      e.preventDefault();
+      const field = $(this).data('sort');
+      
+      // Toggle sort direction
+      if (currentSort.field === field) {
+        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentSort.field = field;
+        currentSort.direction = 'asc';
+      }
+      
+      // Update visual indicators
+      updateSortIndicators(currentSort.field, currentSort.direction);
+      
+      // Re-render the table with sorted data
+      renderSortedUsers();
+    });
+    
     // Infinite scroll handler
     $('.table-responsive').on('scroll', function () {
       const $this = $(this);
@@ -495,6 +618,7 @@
         searchTerm = this.value;
         currentPage = 1;
         allLoaded = false;
+        allUsers = []; // Clear existing data for new search
         fetchUsers(currentPage, false);
       }
     });
@@ -502,6 +626,7 @@
       searchTerm = $('#userSearch').val();
       currentPage = 1;
       allLoaded = false;
+      allUsers = []; // Clear existing data for new search
       fetchUsers(currentPage, false);
     });
 
