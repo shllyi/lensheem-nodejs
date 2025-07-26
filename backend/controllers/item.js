@@ -203,6 +203,7 @@ const updateItem = (req, res) => {
   const imageFiles = req.files || [];
 
   function deleteOldImagesAndProceed(callback) {
+    // Always delete all old images when new images are uploaded
     if (imageFiles.length > 0) {
       const getOldSql = `SELECT image, (SELECT GROUP_CONCAT(image_path) FROM item_images WHERE item_id = ?) AS extra_images FROM item WHERE item_id = ?`;
       db.query(getOldSql, [itemId, itemId], (err, results) => {
@@ -211,11 +212,15 @@ const updateItem = (req, res) => {
         const oldMain = results[0].image;
         const oldExtras = results[0].extra_images ? results[0].extra_images.split(',') : [];
         const allOld = [oldMain, ...oldExtras].filter(Boolean);
+        
+        // Delete all old image files from filesystem
         allOld.forEach(filename => {
-          if (!imageFiles.find(f => f.filename === filename)) {
-            const filePath = path.join(__dirname, '../public/uploads/', filename);
-            fs.unlink(filePath, err => {/* ignore errors */});
-          }
+          const filePath = path.join(__dirname, '../public/uploads/', filename);
+          fs.unlink(filePath, err => {
+            if (err && err.code !== 'ENOENT') {
+              console.error('Error deleting old image:', err);
+            }
+          });
         });
         callback();
       });
@@ -250,7 +255,7 @@ const updateItem = (req, res) => {
         if (err2) return res.status(500).json({ error: 'Error updating stock', details: err2 });
 
         if (imageFiles.length > 0) {
-          // Always clear all old extra images
+          // Always clear all old extra images first
           const deleteSql = `DELETE FROM item_images WHERE item_id = ?`;
           db.query(deleteSql, [itemId], (delErr) => {
             if (delErr) return res.status(500).json({ error: 'Error deleting old images', details: delErr });
@@ -259,13 +264,19 @@ const updateItem = (req, res) => {
               // Only one image: do NOT insert into item_images, only set main image
               return res.status(200).json({ success: true, message: 'Item updated with single image' });
             } else {
-              // Multiple images: insert all into item_images
-              const imgSql = `INSERT INTO item_images (item_id, image_path) VALUES ?`;
-              const imgValues = imageFiles.map(file => [itemId, file.filename]);
-              db.query(imgSql, [imgValues], (err3) => {
-                if (err3) return res.status(500).json({ error: 'Error saving images', details: err3 });
+              // Multiple images: insert all except the first one into item_images
+              // The first image is already set as the main image in the item table
+              const extraImages = imageFiles.slice(1); // Skip the first image
+              if (extraImages.length > 0) {
+                const imgSql = `INSERT INTO item_images (item_id, image_path) VALUES ?`;
+                const imgValues = extraImages.map(file => [itemId, file.filename]);
+                db.query(imgSql, [imgValues], (err3) => {
+                  if (err3) return res.status(500).json({ error: 'Error saving extra images', details: err3 });
+                  return res.status(200).json({ success: true, message: 'Item updated with new images' });
+                });
+              } else {
                 return res.status(200).json({ success: true, message: 'Item updated with new images' });
-              });
+              }
             }
           });
         } else {

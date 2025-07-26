@@ -64,6 +64,65 @@
       border-bottom: 2px solid #e0e0e0;
       padding: 14px 10px;
       font-size: 1rem;
+      position: relative;
+    }
+    
+    /* Sortable column styles */
+    .sortable {
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s;
+    }
+    
+    .sortable:hover {
+      background: #e8eaed !important;
+    }
+    
+    .sort-arrows {
+      display: inline-block;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    
+    .sort-arrows i {
+      display: block;
+      font-size: 10px;
+      line-height: 1;
+      color: #ccc;
+      transition: color 0.2s;
+    }
+    
+    .sort-arrows .sort-up {
+      margin-bottom: 2px;
+    }
+    
+    .sort-arrows .sort-down {
+      margin-top: 2px;
+    }
+    
+    /* Active sort indicators */
+    .sort-asc .sort-up,
+    .sort-desc .sort-down {
+      color: #2c3e50;
+      font-weight: bold;
+    }
+    
+    /* Search box styles */
+    #searchBox {
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    #searchBox:focus {
+      border-color: #2c3e50;
+      box-shadow: 0 0 0 0.1rem rgba(44,62,80,0.08);
+    }
+    
+    .input-group-text {
+      background: #f8f9fa;
+      border: 1px solid #d1d5db;
+      color: #6c757d;
     }
     #itable tbody td {
       padding: 12px 10px;
@@ -262,10 +321,24 @@
       <p>Manage and review all items. Add, edit, or delete as needed.</p>
     </div>
     
-    <!-- Add Item Button -->
-    <button type="button" class="btn btn-info mb-3" data-toggle="modal" data-target="#itemModal">
-      <i class="fas fa-plus mr-2"></i> Add Item
-    </button>
+    <!-- Search and Controls Row -->
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
+          </div>
+          <input type="text" id="searchBox" class="form-control" placeholder="Search items by name, description, or category..." />
+        </div>
+      </div>
+      <div class="col-md-6 text-right">
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#itemModal">
+          <i class="fas fa-plus mr-2"></i> Add Item
+        </button>
+      </div>
+    </div>
     
     <!-- Items Table Container with Infinite Scroll -->
     <div class="items-table-container" style="max-height: 500px; overflow-y: auto;">
@@ -273,14 +346,56 @@
       <table id="itable" class="table table-striped table-hover">
         <thead>
           <tr>
-            <th>Item ID</th>
-            <th>Item Name</th>
+            <th class="sortable" data-sort="item_id">
+              Item ID
+              <span class="sort-arrows">
+                <i class="fas fa-caret-up sort-up"></i>
+                <i class="fas fa-caret-down sort-down"></i>
+              </span>
+            </th>
+            <th class="sortable" data-sort="item_name">
+              Item Name
+              <span class="sort-arrows">
+                <i class="fas fa-caret-up sort-up"></i>
+                <i class="fas fa-caret-down sort-down"></i>
+              </span>
+            </th>
             <th>Image</th>
-            <th>Description</th>
-            <th>Cost Price</th>
-            <th>Sell Price</th>
-            <th>Quantity</th>
-            <th>Category</th>
+            <th class="sortable" data-sort="description">
+              Description
+              <span class="sort-arrows">
+                <i class="fas fa-caret-up sort-up"></i>
+                <i class="fas fa-caret-down sort-down"></i>
+              </span>
+            </th>
+            <th class="sortable" data-sort="cost_price">
+              Cost Price
+              <span class="sort-arrows">
+                <i class="fas fa-caret-up sort-up"></i>
+                <i class="fas fa-caret-down sort-down"></i>
+              </span>
+            </th>
+            <th class="sortable" data-sort="sell_price">
+              Sell Price
+              <span class="sort-arrows">
+                <i class="fas fa-caret-up sort-up"></i>
+                <i class="fas fa-caret-down sort-down"></i>
+              </span>
+            </th>
+            <th class="sortable" data-sort="quantity">
+              Quantity
+              <span class="sort-arrows">
+                <i class="fas fa-caret-up sort-up"></i>
+                <i class="fas fa-caret-down sort-down"></i>
+              </span>
+            </th>
+            <th class="sortable" data-sort="category_name">
+              Category
+              <span class="sort-arrows">
+                <i class="fas fa-caret-up sort-up"></i>
+                <i class="fas fa-caret-down sort-down"></i>
+              </span>
+            </th>
             <th>Action</th>
           </tr>
         </thead>
@@ -349,8 +464,9 @@
             
             <!-- Multiple Image Upload Field -->
             <div class="form-group">
-              <label>Image</label>
-              <input type="file" class="form-control" id="img" name="images" multiple />
+              <label>Images <small class="text-muted">(Select multiple images)</small></label>
+              <input type="file" class="form-control" id="img" name="images" multiple accept="image/*" />
+              <small class="form-text text-muted">First image will be the main image. You can select multiple images.</small>
               <!-- Image Preview Area -->
               <div id="itemPreview" class="mt-2"></div>
             </div>
@@ -490,33 +606,126 @@
       let totalItems = 0;
       let loading = false;
       let allLoaded = false;
+      
+      // ==================== SEARCH AND SORT VARIABLES ====================
+      let allItems = []; // Store all items for client-side search and sort
+      let filteredItems = []; // Store filtered items
+      let currentSort = { field: 'item_id', direction: 'asc' }; // Current sort state
+      let searchTerm = ''; // Current search term
 
       // ==================== FETCH ITEMS FUNCTION ====================
-      // Load items from backend with pagination support
+      // Load all items from backend for search and sort functionality
       function fetchItems(page = 1, append = false) {
-        if (loading || allLoaded) return;
+        if (loading) return;
         loading = true;
         $('#spinner').show();
-        $.get(`${baseUrl}?page=${page}&limit=${pageSize}`, function (res) {
+        
+        // Fetch all items at once for better search/sort performance
+        $.get(`${baseUrl}?limit=1000`, function (res) {
           const items = res.data || [];
-          totalItems = res.total || items.length;
-          if (items.length < pageSize || ((page - 1) * pageSize + items.length) >= totalItems) {
-            allLoaded = true;
-          }
-          renderTable(items, append);
+          allItems = items;
+          applySearchAndSort();
           loading = false;
           $('#spinner').hide();
         }).fail(function() {
           loading = false;
           $('#spinner').hide();
+          Swal.fire('Error', 'Failed to load items.', 'error');
         });
       }
+      
+      // ==================== SEARCH AND SORT FUNCTIONS ====================
+      function applySearchAndSort() {
+        // Apply search filter
+        filteredItems = allItems.filter(item => {
+          if (!searchTerm) return true;
+          const searchLower = searchTerm.toLowerCase();
+          return (
+            (item.item_name && item.item_name.toLowerCase().includes(searchLower)) ||
+            (item.description && item.description.toLowerCase().includes(searchLower)) ||
+            (item.category_name && item.category_name.toLowerCase().includes(searchLower)) ||
+            (item.item_id && item.item_id.toString().includes(searchTerm))
+          );
+        });
+        
+        // Apply sorting
+        filteredItems.sort((a, b) => {
+          let aVal = a[currentSort.field];
+          let bVal = b[currentSort.field];
+          
+          // Handle numeric values
+          if (['item_id', 'cost_price', 'sell_price', 'quantity'].includes(currentSort.field)) {
+            aVal = parseFloat(aVal) || 0;
+            bVal = parseFloat(bVal) || 0;
+          } else {
+            // Handle string values
+            aVal = (aVal || '').toString().toLowerCase();
+            bVal = (bVal || '').toString().toLowerCase();
+          }
+          
+          if (currentSort.direction === 'asc') {
+            return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+          } else {
+            return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+          }
+        });
+        
+        // Render the filtered and sorted items
+        renderTable(filteredItems);
+      }
+      
+      // ==================== SEARCH HANDLER ====================
+      $('#searchBox').on('input', function() {
+        searchTerm = $(this).val();
+        applySearchAndSort();
+      });
+      
+      // ==================== SORT HANDLER ====================
+      $('#itable thead').on('click', '.sortable', function() {
+        const field = $(this).data('sort');
+        const currentField = currentSort.field;
+        const currentDirection = currentSort.direction;
+        
+        // Reset all sort indicators
+        $('.sortable').removeClass('sort-asc sort-desc');
+        
+        // Set new sort
+        if (field === currentField) {
+          // Toggle direction if same field
+          currentSort.direction = currentDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+          // New field, default to ascending
+          currentSort.field = field;
+          currentSort.direction = 'asc';
+        }
+        
+        // Add sort indicator
+        const sortClass = currentSort.direction === 'asc' ? 'sort-asc' : 'sort-desc';
+        $(this).addClass(sortClass);
+        
+        // Apply search and sort
+        applySearchAndSort();
+      });
 
       // ==================== RENDER TABLE FUNCTION ====================
       // Render items in the table with CRUD action buttons
       function renderTable(items, append = false) {
         const tbody = $('#ibody');
-        if (!append) tbody.empty();
+        tbody.empty(); // Always clear and re-render for search/sort
+        
+        if (items.length === 0) {
+          tbody.append(`
+            <tr>
+              <td colspan="9" class="text-center text-muted py-4">
+                <i class="fas fa-search fa-2x mb-2"></i>
+                <br>
+                ${searchTerm ? 'No items found matching your search.' : 'No items available.'}
+              </td>
+            </tr>
+          `);
+          return;
+        }
+        
         items.forEach(data => {
           // Handle multiple images display
           const images = (data.all_images || []).filter(Boolean);
@@ -543,11 +752,31 @@
             </tr>
           `);
         });
+        
+        // Update results count
+        updateResultsCount();
+      }
+      
+      // ==================== UPDATE RESULTS COUNT ====================
+      function updateResultsCount() {
+        const totalCount = allItems.length;
+        const filteredCount = filteredItems.length;
+        const searchInfo = searchTerm ? 
+          `Showing ${filteredCount} of ${totalCount} items` : 
+          `Total: ${totalCount} items`;
+        
+        // Add or update results count display
+        let countDisplay = $('.results-count');
+        if (countDisplay.length === 0) {
+          $('.section-header p').after(`<div class="results-count text-muted text-center mb-3">${searchInfo}</div>`);
+        } else {
+          countDisplay.text(searchInfo);
+        }
       }
 
       // ==================== INITIAL DATA LOAD ====================
-      // Load first page of items on page load
-      fetchItems(currentPage);
+      // Load all items on page load
+      fetchItems();
 
       // ==================== ADD ITEM MODAL HANDLER ====================
       // Reset form when opening Add Item modal
@@ -562,15 +791,53 @@
         $('#iform').find('.text-danger').remove();
       });
 
-      // ==================== INFINITE SCROLL HANDLER ====================
-      // Load more items when scrolling near bottom
-      $('.items-table-container').on('scroll', function () {
-        const container = $(this)[0];
-        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 50) {
-          if (!loading && !allLoaded) {
-            currentPage++;
-            fetchItems(currentPage, true);
+      // ==================== IMAGE PREVIEW HANDLER ====================
+      // Show preview of selected images
+      $('#img').on('change', function() {
+        const files = this.files;
+        const preview = $('#itemPreview');
+        preview.empty();
+        
+        if (files.length > 0) {
+          preview.append('<p class="text-info mb-2"><strong>Selected Images:</strong></p>');
+          
+          Array.from(files).forEach((file, index) => {
+            if (file.type.startsWith('image/')) {
+              const reader = new FileReader();
+              reader.onload = function(e) {
+                preview.append(`
+                  <div class="d-inline-block mr-2 mb-2">
+                    <img src="${e.target.result}" width="100" height="100" class="border rounded" style="object-fit: cover;" />
+                    <div class="text-center mt-1">
+                      <small class="text-muted">${file.name}</small>
+                    </div>
+                  </div>
+                `);
+              };
+              reader.readAsDataURL(file);
+            }
+          });
+          
+          if (files.length > 1) {
+            preview.append(`
+              <div class="mt-2">
+                <small class="text-warning">
+                  <i class="fas fa-info-circle"></i> 
+                  First image will be the main image, others will be additional images.
+                </small>
+              </div>
+            `);
           }
+        }
+      });
+
+      // ==================== CLEAR SEARCH ====================
+      // Add clear search functionality
+      $('#searchBox').on('keyup', function(e) {
+        if (e.key === 'Escape') {
+          $(this).val('');
+          searchTerm = '';
+          applySearchAndSort();
         }
       });
 
@@ -592,10 +859,8 @@
           success: function () {
             Swal.fire('Success', 'Item created!', 'success');
             $('#itemModal').modal('hide');
-            // Reset and reload from first page
-            currentPage = 1;
-            allLoaded = false;
-            fetchItems(currentPage);
+            // Reset and reload all items
+            fetchItems();
           },
           error: function (err) {
             console.error(err);
@@ -627,10 +892,24 @@
           $('#qty').val(item.quantity);
           $('#category').val(item.category_id);
 
-          // Show all images in preview
+          // Clear file input and show current images in preview
+          $('#img').val('');
           const images = [...new Set(item.all_images || [])]; // Deduplicate just in case
-          const previews = images.map(img => `<img src="${imageBaseUrl}${img}" width="100" class="mr-2 mb-2" />`).join('');
-          $('#itemPreview').html(previews);
+          if (images.length > 0) {
+            const previews = images.map(img => `<img src="${imageBaseUrl}${img}" width="100" class="mr-2 mb-2" />`).join('');
+            $('#itemPreview').html(`
+              <p class="text-info mb-2"><strong>Current Images:</strong></p>
+              ${previews}
+              <div class="mt-2">
+                <small class="text-warning">
+                  <i class="fas fa-info-circle"></i> 
+                  Select new images to replace current ones, or leave empty to keep current images.
+                </small>
+              </div>
+            `);
+          } else {
+            $('#itemPreview').html('<p class="text-muted">No images currently uploaded.</p>');
+          }
 
           $('#itemModal').modal('show');
         }).fail(function () {
@@ -645,8 +924,33 @@
         if (!$('#iform').valid()) {
           return false;
         }
+        
         const id = $('#itemId').val();
         const formData = new FormData($('#iform')[0]);
+        const hasNewImages = formData.get('images').size > 0;
+        
+        // Show confirmation if new images are being uploaded
+        if (hasNewImages) {
+          Swal.fire({
+            title: 'Update Images?',
+            text: 'This will replace all current images with the new ones. Continue?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, update images',
+            cancelButtonText: 'Cancel'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              submitUpdate(id, formData);
+            }
+          });
+        } else {
+          // No new images, proceed with update
+          submitUpdate(id, formData);
+        }
+      });
+      
+      // Helper function to submit the update
+      function submitUpdate(id, formData) {
         $.ajax({
           url: `${baseUrl}/${id}`,
           method: 'PUT',
@@ -656,17 +960,15 @@
           success: function () {
             Swal.fire('Updated', 'Item updated successfully.', 'success');
             $('#itemModal').modal('hide');
-            // Reset and reload from first page
-            currentPage = 1;
-            allLoaded = false;
-            fetchItems(currentPage);
+            // Reset and reload all items
+            fetchItems();
           },
           error: function (err) {
             console.error(err);
             Swal.fire('Error', 'Failed to update item.', 'error');
           }
         });
-      });
+      }
 
       // ==================== DELETE ITEM (DELETE) ====================
       // Handle delete button click - soft delete item
@@ -686,10 +988,8 @@
               method: 'DELETE',
               success: function () {
                 Swal.fire('Deleted!', 'Item has been deleted.', 'success');
-                // Reset and reload from first page
-                currentPage = 1;
-                allLoaded = false;
-                fetchItems(currentPage);
+                // Reset and reload all items
+                fetchItems();
               },
               error: function (err) {
                 console.error(err);
@@ -719,10 +1019,8 @@
             method: 'PATCH',
             success: function () {
               Swal.fire('Restored!', 'Item has been restored.', 'success');
-              // Reset and reload from first page
-              currentPage = 1;
-              allLoaded = false;
-              fetchItems(currentPage);
+              // Reset and reload all items
+              fetchItems();
             },
             error: function (err) {
               console.error(err);
