@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cart</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .cart-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .cart-header {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 24px;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .cart-content {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 30px;
+    }
+    
+    .cart-items {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .cart-item {
+      display: grid;
+      grid-template-columns: 100px 1fr 120px 150px 120px 40px;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid #e9ecef;
+      gap: 15px;
+    }
+    
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+    
+    .cart-item-image {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #e9ecef;
+    }
+    
+    .cart-item-details h6 {
+      margin: 0 0 5px 0;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .cart-item-details .item-meta {
+      font-size: 12px;
+      color: #6c757d;
+      margin: 2px 0;
+    }
+    
+    .price-display {
+      font-weight: 600;
+      color: #333;
+      font-size: 16px;
+    }
+    
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      background: white;
+      width: 120px;
+    }
+    
+    .quantity-btn {
+      background: none;
+      border: none;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #6c757d;
+      font-size: 16px;
+      transition: background-color 0.2s;
+    }
+    
+    .quantity-btn:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .quantity-input {
+      border: none;
+      text-align: center;
+      width: 60px;
+      height: 30px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .quantity-input:focus {
+      outline: none;
+    }
+    
+    .total-display {
+      font-weight: 600;
+      color: #333;
+      font-size: 16px;
+    }
+    
+    .remove-btn {
+      background: none;
+      border: none;
+      color: #dc3545;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+    
+    .remove-btn:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .cart-sidebar {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 25px;
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
+    
+    .order-summary {
+      margin-bottom: 25px;
+    }
+    
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .summary-row.total {
+      font-weight: 600;
+      font-size: 18px;
+      color: #333;
+      border-top: 1px solid #dee2e6;
+      padding-top: 15px;
+      margin-top: 15px;
+    }
+    
+    .shipping-note {
+      font-size: 12px;
+      color: #6c757d;
+      margin-bottom: 15px;
+    }
+    
+    .checkout-btn {
+      width: 100%;
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .checkout-btn:hover {
+      background-color: #5a6268;
+    }
+    
+    .checkout-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .empty-cart {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6c757d;
+    }
+    
+    .empty-cart h5 {
+      margin-bottom: 15px;
+      color: #333;
+    }
+    
+    @media (max-width: 768px) {
+      .cart-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .cart-item {
+        grid-template-columns: 80px 1fr 40px;
+        gap: 10px;
+      }
+      
+      .cart-item-price,
+      .cart-item-total {
+        grid-column: 2;
+        text-align: right;
+        font-size: 14px;
+      }
+      
+      .cart-item-quantity {
+        grid-column: 2;
+        justify-self: end;
+      }
+      
+      .cart-item-remove {
+        grid-column: 3;
+        grid-row: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="header"></div>
+
+  <div class="cart-container">
+    <div class="cart-header">YOUR CART</div>
+    
+    <div class="cart-content">
+      <div class="cart-items">
+        <div id="cartContents"></div>
+      </div>
+      
+      <div class="cart-sidebar">
+        <div class="order-summary">
+          <div class="summary-row">
+            <span>SUBTOTAL</span>
+            <span id="subtotalAmount">₱0.00</span>
+          </div>
+          <div class="shipping-note">Shipping & taxes calculated at checkout</div>
+          <div class="summary-row total">
+            <span>TOTAL</span>
+            <span id="totalAmount">₱0.00</span>
+          </div>
+        </div>
+        
+        <button class="checkout-btn" id="checkoutBtn">CHECKOUT</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const totalQty = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+      $('#cart-count').text(totalQty);
+    }
+
+    function renderCart() {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+      if (cart.length === 0) {
+        $('#cartContents').html(`
+          <div class="empty-cart">
+            <h5>Your cart is empty</h5>
+            <p>Add some items to your cart to get started</p>
+          </div>
+        `);
+        updateCartCount();
+        updateTotals();
+        return;
+      }
+
+      let html = '';
+      cart.forEach((item, index) => {
+        const quantity = item.quantity || 1;
+        const subtotal = parseFloat(item.price) * quantity;
+
+        html += `
+          <div class="cart-item" data-index="${index}">
+            <img src="/uploads/${item.image_path}" alt="${item.name}" class="cart-item-image">
+            <div class="cart-item-details">
+              <h6>${item.name}</h6>
+              <div class="item-meta">Color: ${item.color || 'N/A'}</div>
+              <div class="item-meta">Size: ${item.size || 'N/A'}</div>
+            </div>
+            <div class="price-display">₱${parseFloat(item.price).toFixed(2)}</div>
+            <div class="quantity-controls">
+              <button class="quantity-btn quantity-decrease" data-index="${index}">-</button>
+              <input type="number" class="quantity-input" data-index="${index}" value="${quantity}" min="1">
+              <button class="quantity-btn quantity-increase" data-index="${index}">+</button>
+            </div>
+            <div class="total-display item-subtotal">₱${subtotal.toFixed(2)}</div>
+            <button class="remove-btn" data-index="${index}">×</button>
+          </div>`;
+      });
+
+      $('#cartContents').html(html);
+      updateCartCount();
+      updateTotals();
+    }
+
+    function updateTotals() {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      let total = 0;
+
+      cart.forEach(item => {
+        const quantity = item.quantity || 1;
+        const price = parseFloat(item.price);
+        total += price * quantity;
+      });
+
+      $('#subtotalAmount').text(`₱${total.toFixed(2)}`);
+      $('#totalAmount').text(`₱${total.toFixed(2)}`);
+    }
+
+    $(document).ready(function () {
+      $('#header').load('/header.html', function () {
+        const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('userId');
+
+        // 🔒 Check if user is logged in
+        if (!token || !userId) {
+          localStorage.removeItem('cart');
+          $('#cartContents').html(`
+            <div class="empty-cart">
+              <h5>Please log in to view your cart</h5>
+              <p>You must be logged in to access your shopping cart</p>
+            </div>
+          `);
+          $('#checkoutBtn').prop('disabled', true);
+          return;
+        }
+
+        // ✅ Render cart if logged in
+        renderCart();
+      });
+
+      // Quantity decrease
+      $(document).on('click', '.quantity-decrease', function () {
+        const index = $(this).data('index');
+        const input = $(`.quantity-input[data-index="${index}"]`);
+        let currentQty = parseInt(input.val());
+        
+        if (currentQty > 1) {
+          input.val(currentQty - 1);
+          updateQuantity(index, currentQty - 1);
+        }
+      });
+
+      // Quantity increase
+      $(document).on('click', '.quantity-increase', function () {
+        const index = $(this).data('index');
+        const input = $(`.quantity-input[data-index="${index}"]`);
+        let currentQty = parseInt(input.val());
+        
+        input.val(currentQty + 1);
+        updateQuantity(index, currentQty + 1);
+      });
+
+      // Update quantity on input change
+      $(document).on('input', '.quantity-input', function () {
+        const index = $(this).data('index');
+        let newQty = parseInt($(this).val());
+
+        if (isNaN(newQty) || newQty < 1) {
+          newQty = 1;
+          $(this).val(1);
+        }
+        
+        updateQuantity(index, newQty);
+      });
+
+      function updateQuantity(index, newQty) {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        cart[index].quantity = newQty;
+        localStorage.setItem('cart', JSON.stringify(cart));
+
+        const price = parseFloat(cart[index].price);
+        const subtotal = price * newQty;
+
+        $(`.cart-item[data-index="${index}"] .item-subtotal`).text(`₱${subtotal.toFixed(2)}`);
+        updateTotals();
+        updateCartCount();
+      }
+
+      // Remove item from cart
+      $(document).on('click', '.remove-btn', function () {
+        const index = $(this).data('index');
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        cart.splice(index, 1);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        renderCart();
+      });
+
+      // Checkout
+      $('#checkoutBtn').click(function () {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        if (cart.length === 0) {
+          alert('Your cart is empty.');
+          return;
+        }
+
+        localStorage.setItem('checkoutCart', JSON.stringify(cart));
+        window.location.href = '/checkout.html';
+      });
+    });
+  </script>
+</body>
+</html>

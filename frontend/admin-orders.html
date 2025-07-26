@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Orders</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/responsive.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    .admin-orders-wrapper {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 30px 20px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(60,60,60,0.08);
+    }
+    .section-header {
+      margin-bottom: 40px;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 20px;
+      text-align: center;
+    }
+    .section-header h2 {
+      font-size: 2.2rem;
+      font-weight: 300;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .orders-table-container {
+      overflow-x: auto;
+    }
+    #ordersTable {
+      width: 100% !important;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-bottom: 0;
+    }
+    #ordersTable thead th {
+      background: #f4f6f8;
+      color: #333;
+      font-weight: 500;
+      border-bottom: 2px solid #e0e0e0;
+      padding: 14px 10px;
+      font-size: 1rem;
+    }
+    #ordersTable tbody td {
+      padding: 12px 10px;
+      vertical-align: middle;
+      font-size: 0.98rem;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    #ordersTable tbody tr:last-child td {
+      border-bottom: none;
+    }
+    .order-items-list {
+      font-size: 0.95em;
+      color: #555;
+      margin-bottom: 2px;
+    }
+    .order-status-dropdown {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 1em;
+      background: #f8f9fa;
+      color: #333;
+      transition: border-color 0.2s;
+      min-width: 140px;
+      width: 100%;
+      max-width: 200px;
+    }
+    .order-status-dropdown:focus {
+      border-color: #333;
+      outline: none;
+      background: #fff;
+    }
+    /* DataTables custom style */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+      border-radius: 4px;
+      border: 1px solid #e0e0e0;
+      background: #f8f9fa;
+      color: #333 !important;
+      margin: 0 2px;
+      padding: 4px 12px;
+      font-size: 0.95em;
+      transition: background 0.2s;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+      background: #333 !important;
+      color: #fff !important;
+      border-color: #333;
+    }
+    .dataTables_wrapper .dataTables_length select {
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      padding: 4px 10px;
+      font-size: 0.95em;
+      background: #fff;
+      color: #333;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      padding: 4px 10px;
+      font-size: 0.95em;
+      background: #fff;
+      color: #333;
+      min-width: 220px;
+      width: 100%;
+      max-width: 320px;
+    }
+    /* Responsive tweaks */
+    @media (max-width: 900px) {
+      .admin-orders-wrapper {
+        padding: 15px 2vw;
+      }
+      .section-header h2 {
+        font-size: 1.5rem;
+      }
+    }
+    @media (max-width: 600px) {
+      .admin-orders-wrapper {
+        padding: 5px 0.5vw;
+      }
+      .section-header {
+        padding-bottom: 10px;
+      }
+      #ordersTable thead th, #ordersTable tbody td {
+        font-size: 0.92rem;
+        padding: 8px 4px;
+      }
+    }
+    /* Loading spinner */
+    .loading-state {
+      text-align: center;
+      padding: 40px 0;
+      color: #666;
+    }
+    .loading-spinner {
+      font-size: 16px;
+      color: #666;
+      letter-spacing: 1px;
+    }
+    /* Error message */
+    .error-message {
+      text-align: center;
+      padding: 40px 0;
+      color: #d32f2f;
+      font-size: 1.1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-orders-wrapper">
+    <div class="section-header">
+      <h2>All Orders <span style="font-size:1rem;font-weight:400;color:#888;">(Admin)</span></h2>
+      <p style="color:#666;font-size:1.05em;font-weight:300;">Manage and review all customer orders. Update status as needed.</p>
+    </div>
+    <div class="orders-table-container">
+      <table id="ordersTable" class="display">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer ID</th>
+            <th>Date Placed</th>
+            <th>Date Shipped</th>
+            <th>Date Delivered</th>
+            <th>Status</th>
+            <th>Shipping Region</th>
+            <th>Shipping Rate</th>
+            <th>Items</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Data will be inserted here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script src="assets/js/vendor/jquery-3.3.1.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Show loading spinner
+      $('#ordersTable tbody').html('<tr><td colspan="9"><div class="loading-state"><span class="loading-spinner">Loading orders...</span></div></td></tr>');
+      $.get('/api/orders/admin/all', function(response) {
+        if (response.success) {
+          const statusOptions = ['Pending', 'Shipped', 'Delivered', 'Cancelled'];
+          const rows = response.data.map(order => {
+            const itemsHtml = order.items.map(item =>
+              `<div class=\"order-items-list\">${item.item_name} (x${item.quantity}) - \u20b1${item.price}</div>`
+            ).join('');
+            const statusDropdown = `
+              <select class=\"order-status-dropdown\" data-order-id=\"${order.orderinfo_id}\">
+                ${statusOptions.map(opt => `<option value=\"${opt}\"${order.status === opt ? ' selected' : ''}>${opt}</option>`).join('')}
+              </select>
+            `;
+            return `
+              <tr>
+                <td>${order.orderinfo_id}</td>
+                <td>${order.customer_id}</td>
+                <td>${order.date_placed || ''}</td>
+                <td>${order.date_shipped || ''}</td>
+                <td>${order.date_delivered || ''}</td>
+                <td>${statusDropdown}</td>
+                <td>${order.region}</td>
+                <td>\u20b1${order.rate}</td>
+                <td>${itemsHtml}</td>
+              </tr>
+            `;
+          }).join('');
+          $('#ordersTable tbody').html(rows);
+          $('#ordersTable').DataTable({
+            responsive: true,
+            pageLength: 10,
+            lengthMenu: [5, 10, 25, 50],
+            language: {
+              emptyTable: '<div class="error-message">No orders found.</div>'
+            }
+          });
+        } else {
+          $('#ordersTable tbody').html('<tr><td colspan="9"><div class="error-message">Failed to load orders.</div></td></tr>');
+        }
+      }).fail(function() {
+        $('#ordersTable tbody').html('<tr><td colspan="9"><div class="error-message">Connection error. Please try again.</div></td></tr>');
+      });
+
+      // Handle status change
+      $('#ordersTable').on('change', '.order-status-dropdown', function() {
+        const orderId = $(this).data('order-id');
+        const newStatus = $(this).val();
+        $.ajax({
+          url: `/api/orders/${orderId}/status`,
+          method: 'PUT',
+          contentType: 'application/json',
+          data: JSON.stringify({ newStatus }),
+          success: function(res) {
+            alert('Order status updated!');
+          },
+          error: function() {
+            alert('Failed to update order status.');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

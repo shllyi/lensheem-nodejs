@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Complete Profile - LenSheem</title>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+  <!-- Bootstrap CSS & JS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <style>
+    /* Modern Formal Styling */
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      color: #333;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .profile-section {
+      padding: 100px 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+    }
+
+    .profile-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 0;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .profile-header {
+      background: linear-gradient(135deg, #333 0%, #555 100%);
+      color: white;
+      padding: 60px 0;
+      text-align: center;
+      position: relative;
+    }
+
+    .profile-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+      opacity: 0.1;
+    }
+
+    .profile-header h1 {
+      font-size: 2.5rem;
+      font-weight: 300;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin: 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .profile-header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin: 15px 0 0 0;
+      font-weight: 300;
+      letter-spacing: 1px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .profile-form-container {
+      padding: 60px 50px;
+      background: white;
+    }
+
+    .profile-image-section {
+      text-align: center;
+      margin-bottom: 50px;
+      position: relative;
+    }
+
+    .profile-image-wrapper {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 30px;
+    }
+
+    #profileImagePreview {
+      width: 140px;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 4px solid #f8f9fa;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .profile-image-wrapper:hover #profileImagePreview {
+      transform: scale(1.05);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .image-upload-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      cursor: pointer;
+    }
+
+    .profile-image-wrapper:hover .image-upload-overlay {
+      opacity: 1;
+    }
+
+    .image-upload-overlay i {
+      color: white;
+      font-size: 1.5rem;
+    }
+
+    .upload-instruction {
+      color: #666;
+      font-size: 0.9rem;
+      letter-spacing: 0.5px;
+      margin-top: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 35px;
+      position: relative;
+    }
+
+    .form-label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .form-control, .form-select {
+      border: 1px solid #e0e0e0;
+      border-radius: 0;
+      padding: 15px 20px;
+      font-size: 1rem;
+      background: #fafafa;
+      transition: all 0.3s ease;
+      color: #333;
+      font-weight: 300;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: #333;
+      box-shadow: 0 0 0 0.2rem rgba(51, 51, 51, 0.1);
+      background: white;
+      outline: none;
+    }
+
+    .form-control:hover, .form-select:hover {
+      border-color: #999;
+      background: white;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .form-row-single {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    .btn-save-profile {
+      background: linear-gradient(135deg, #333 0%, #555 100%);
+      color: white;
+      border: none;
+      padding: 18px 50px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border-radius: 0;
+      transition: all 0.3s ease;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-save-profile::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .btn-save-profile:hover::before {
+      left: 100%;
+    }
+
+    .btn-save-profile:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-save-profile:active {
+      transform: translateY(0);
+    }
+
+    .btn-save-profile.saving {
+      background: #666;
+      cursor: not-allowed;
+    }
+
+    .btn-save-profile.success {
+      background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+    }
+
+    .message-container {
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    .profile-message {
+      padding: 15px 25px;
+      border-radius: 0;
+      font-size: 0.9rem;
+      font-weight: 400;
+      letter-spacing: 0.5px;
+      border: none;
+      display: none;
+    }
+
+    .profile-message.success {
+      background: linear-gradient(135deg, #e8f5e8 0%, #f1f8f1 100%);
+      color: #2e7d32;
+      border-left: 4px solid #4caf50;
+    }
+
+    .profile-message.error {
+      background: linear-gradient(135deg, #ffeaea 0%, #ffebee 100%);
+      color: #c62828;
+      border-left: 4px solid #f44336;
+    }
+
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .loading-spinner {
+      text-align: center;
+      color: #666;
+    }
+
+    .loading-spinner i {
+      font-size: 2rem;
+      margin-bottom: 15px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-spinner p {
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #999;
+    }
+
+    /* Hidden file input */
+    #image {
+      display: none;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .profile-section {
+        padding: 50px 0;
+      }
+
+      .profile-form-container {
+        padding: 40px 30px;
+      }
+
+      .profile-header {
+        padding: 40px 0;
+      }
+
+      .profile-header h1 {
+        font-size: 2rem;
+        letter-spacing: 2px;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+
+      #profileImagePreview {
+        width: 120px;
+        height: 120px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .profile-container {
+        margin: 0 15px;
+      }
+
+      .profile-form-container {
+        padding: 30px 20px;
+      }
+
+      .profile-header h1 {
+        font-size: 1.8rem;
+      }
+    }
+
+    /* Animation for form elements */
+    .form-group {
+      animation: fadeInUp 0.6s ease forwards;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .form-group:nth-child(1) { animation-delay: 0.1s; }
+    .form-group:nth-child(2) { animation-delay: 0.2s; }
+    .form-group:nth-child(3) { animation-delay: 0.3s; }
+    .form-group:nth-child(4) { animation-delay: 0.4s; }
+    .form-group:nth-child(5) { animation-delay: 0.5s; }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header placeholder -->
+  <div id="header">Loading header...</div>
+
+  <!-- Page Content -->
+  <div class="profile-section">
+    <div class="container">
+      <div class="profile-container">
+        <div class="loading-overlay" id="loadingOverlay">
+          <div class="loading-spinner">
+            <i class="fas fa-spinner"></i>
+            <p>Processing...</p>
+          </div>
+        </div>
+
+        <div class="profile-header">
+          <h1>Complete Profile</h1>
+          <p>Enhance your experience with complete profile information</p>
+        </div>
+
+        <div class="profile-form-container">
+          <div class="profile-image-section">
+            <div class="profile-image-wrapper" onclick="document.getElementById('image').click()">
+              <img id="profileImagePreview" src="https://via.placeholder.com/140/f8f9fa/333?text=PROFILE" alt="Profile Picture" />
+              <div class="image-upload-overlay">
+                <i class="fas fa-camera"></i>
+              </div>
+            </div>
+            <p class="upload-instruction">Click to upload profile picture</p>
+          </div>
+
+          <form id="profileForm" enctype="multipart/form-data">
+            <input type="hidden" name="userId" id="userId" />
+            <input type="file" name="image" id="image" accept="image/*" />
+
+            <div class="form-group">
+              <label class="form-label" for="title">Title</label>
+              <select name="title" id="title" class="form-select">
+                <option value="">Select Title</option>
+                <option value="Mr.">Mr.</option>
+                <option value="Ms.">Ms.</option>
+                <option value="Mrs.">Mrs.</option>
+                <option value="Dr.">Dr.</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <div class="form-row">
+                <div>
+                  <label class="form-label" for="fname">First Name</label>
+                  <input type="text" name="fname" id="fname" class="form-control" required />
+                </div>
+                <div>
+                  <label class="form-label" for="lname">Last Name</label>
+                  <input type="text" name="lname" id="lname" class="form-control" required />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="form-row">
+                <div>
+                  <label class="form-label" for="addressline">Address</label>
+                  <input type="text" name="addressline" id="addressline" class="form-control" />
+                </div>
+                <div>
+                  <label class="form-label" for="town">Town</label>
+                  <input type="text" name="town" id="town" class="form-control" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="form-row-single">
+                <div>
+                  <label class="form-label" for="phone">Phone Number</label>
+                  <input type="tel" name="phone" id="phone" class="form-control" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <button type="submit" class="btn-save-profile" id="saveBtn">
+                <i class="fas fa-save me-2"></i>Save Profile
+              </button>
+            </div>
+
+            <div class="message-container">
+              <div id="profileMsg" class="profile-message"></div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+
+      if (!token || !userId) {
+        alert("You must be logged in first!");
+        window.location.href = '/login.html';
+        return;
+      }
+
+      // Load header
+      $('#header').load('/header.html', function (response, status, xhr) {
+        if (status == "error") {
+          console.error("Failed to load header:", xhr.status, xhr.statusText);
+        } else {
+          // Reinitialize Bootstrap dropdowns
+          const dropdownTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
+          dropdownTriggerList.map(function (dropdownTriggerEl) {
+            return new bootstrap.Dropdown(dropdownTriggerEl);
+          });
+
+          // Adjust header links
+          $('#login-link, #register-link').addClass('d-none');
+          $('#user-dropdown').removeClass('d-none');
+
+          // Set user data in header
+          $.get(`/api/users/customers/${userId}`, function (res) {
+            if (res.success && res.data) {
+              const data = res.data;
+              const fullName = `${data.fname || ''} ${data.lname || ''}`.trim();
+              $('#username').text(fullName || 'USER');
+              if (data.image_path) {
+                $('.profile-img').attr('src', `/${data.image_path}`);
+              }
+            }
+          });
+        }
+      });
+
+      $('#userId').val(userId);
+
+      // Fetch profile data
+      fetchProfileData(userId);
+
+      function fetchProfileData(userId) {
+        $.ajax({
+          url: `/api/users/customers/${userId}`,
+          method: 'GET',
+          success: function (res) {
+            if (res.success && res.data) {
+              const data = res.data;
+              $('#title').val(data.title || '');
+              $('#fname').val(data.fname || '');
+              $('#lname').val(data.lname || '');
+              $('#addressline').val(data.addressline || '');
+              $('#town').val(data.town || '');
+              $('#phone').val(data.phone || '');
+              if (data.image_path) {
+                $('#profileImagePreview').attr('src', `/${data.image_path}`);
+              }
+            }
+          },
+          error: function () {
+            console.warn('No profile found.');
+          }
+        });
+      }
+
+      // Image preview
+      $('#image').on('change', function () {
+        const file = this.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            $('#profileImagePreview').attr('src', e.target.result);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      // Form submission
+      $('#profileForm').on('submit', function (e) {
+        e.preventDefault();
+        
+        const $btn = $('#saveBtn');
+        const $msg = $('#profileMsg');
+        const $overlay = $('#loadingOverlay');
+        
+        // Show loading state
+        $btn.addClass('saving').html('<i class="fas fa-spinner fa-spin me-2"></i>Saving...');
+        $overlay.show();
+        $msg.hide();
+
+        const formData = new FormData(this);
+        formData.set('userId', userId);
+
+        $.ajax({
+          url: '/api/users/update-profile',
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token },
+          data: formData,
+          contentType: false,
+          processData: false,
+          success: function () {
+            $btn.removeClass('saving').addClass('success').html('<i class="fas fa-check me-2"></i>Profile Saved!');
+            $msg.removeClass('error').addClass('success').text('✅ Profile updated successfully!').show();
+            $overlay.hide();
+            
+            fetchProfileData(userId);
+            
+            // Reset button after 3 seconds
+            setTimeout(() => {
+              $btn.removeClass('success').html('<i class="fas fa-save me-2"></i>Save Profile');
+            }, 3000);
+          },
+          error: function (err) {
+            console.error("AJAX error object:", err);
+            
+            let message = 'Failed to save profile.';
+            
+            if (err.responseJSON && err.responseJSON.error) {
+              if (typeof err.responseJSON.error === 'string') {
+                message = err.responseJSON.error;
+              } else if (err.responseJSON.error.message) {
+                message = err.responseJSON.error.message;
+              }
+            }
+            
+            $btn.removeClass('saving').html('<i class="fas fa-save me-2"></i>Save Profile');
+            $msg.removeClass('success').addClass('error').text(`❌ ${message}`).show();
+            $overlay.hide();
+          }
+        });
+      });
+
+      // Smooth scroll animation for messages
+      function scrollToMessage() {
+        $('html, body').animate({
+          scrollTop: $('#profileMsg').offset().top - 100
+        }, 500);
+      }
+
+      // Show message with scroll
+      $(document).on('shown.bs.alert', '#profileMsg', function() {
+        scrollToMessage();
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Checkout</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .checkout-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .checkout-header {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 24px;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .checkout-content {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 30px;
+    }
+    
+    .order-items {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .order-items-header {
+      background-color: #f8f9fa;
+      padding: 20px;
+      border-bottom: 1px solid #e9ecef;
+      font-weight: 600;
+      color: #333;
+      font-size: 18px;
+    }
+    
+    .checkout-item {
+      display: grid;
+      grid-template-columns: 100px 1fr 120px 150px;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid #e9ecef;
+      gap: 15px;
+    }
+    
+    .checkout-item:last-child {
+      border-bottom: none;
+    }
+    
+    .checkout-item-image {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #e9ecef;
+      background: #fff;
+    }
+    
+    .checkout-item-details h6 {
+      margin: 0 0 5px 0;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .checkout-item-details .item-meta {
+      font-size: 12px;
+      color: #6c757d;
+      margin: 2px 0;
+    }
+    
+    .price-display {
+      font-weight: 600;
+      color: #333;
+      font-size: 16px;
+    }
+    
+    .quantity-display {
+      font-weight: 500;
+      color: #6c757d;
+      font-size: 14px;
+      text-align: center;
+    }
+    
+    .total-display {
+      font-weight: 600;
+      color: #333;
+      font-size: 16px;
+    }
+    
+    .checkout-sidebar {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 25px;
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
+    
+    .sidebar-section {
+      margin-bottom: 25px;
+    }
+    
+    .sidebar-section h6 {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+    
+    .form-select {
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      padding: 12px;
+      font-size: 14px;
+      background-color: white;
+      transition: border-color 0.2s;
+    }
+    
+    .form-select:focus {
+      border-color: #6c757d;
+      box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.25);
+    }
+    
+    .order-summary {
+      margin-bottom: 25px;
+    }
+    
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .summary-row.total {
+      font-weight: 600;
+      font-size: 18px;
+      color: #333;
+      border-top: 1px solid #dee2e6;
+      padding-top: 15px;
+      margin-top: 15px;
+    }
+    
+    .confirm-btn {
+      width: 100%;
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .confirm-btn:hover {
+      background-color: #5a6268;
+    }
+    
+    .confirm-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .empty-checkout {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6c757d;
+    }
+    
+    .empty-checkout h5 {
+      margin-bottom: 15px;
+      color: #333;
+    }
+    
+    @media (max-width: 768px) {
+      .checkout-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .checkout-item {
+        grid-template-columns: 80px 1fr;
+        gap: 10px;
+      }
+      
+      .checkout-item-price,
+      .checkout-item-quantity,
+      .checkout-item-total {
+        grid-column: 2;
+        text-align: right;
+        font-size: 14px;
+        margin-top: 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="header"></div>
+
+  <div class="checkout-container">
+    <div class="checkout-header">CHECKOUT</div>
+    
+    <div class="checkout-content">
+      <div class="order-items">
+        <div class="order-items-header">Order Summary</div>
+        <div id="cartSummary"></div>
+      </div>
+      
+      <div class="checkout-sidebar">
+        <form id="checkoutForm">
+          <div class="sidebar-section">
+            <h6>Shipping Information</h6>
+            <select id="shippingRegion" class="form-select" required>
+              <option value="">-- Choose Region --</option>
+            </select>
+          </div>
+          
+          <div class="order-summary">
+            <div class="summary-row">
+              <span>SUBTOTAL</span>
+              <span id="itemsTotal">₱0.00</span>
+            </div>
+            <div class="summary-row">
+              <span>SHIPPING</span>
+              <span id="shippingRate">₱0.00</span>
+            </div>
+            <div class="summary-row total">
+              <span>TOTAL</span>
+              <span id="grandTotal">₱0.00</span>
+            </div>
+          </div>
+          
+          <button type="submit" class="confirm-btn">CONFIRM ORDER</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let shippingRates = [];
+    let checkoutCart = [];
+
+    $(document).ready(function () {
+      $('#header').load('/header.html', function () {
+        // 🛒 Load selected cart items
+        checkoutCart = JSON.parse(localStorage.getItem('checkoutCart')) || [];
+
+        if (checkoutCart.length === 0) {
+          $('#cartSummary').html(`
+            <div class="empty-checkout">
+              <h5>No items to checkout</h5>
+              <p>Please add items to your cart first</p>
+            </div>
+          `);
+          return;
+        }
+
+        // 💰 Compute total
+        const itemsTotal = checkoutCart.reduce((sum, item) => sum + item.quantity * item.price, 0);
+        $('#itemsTotal').text(`₱${itemsTotal.toFixed(2)}`);
+        $('#grandTotal').text(`₱${itemsTotal.toFixed(2)}`);
+
+        // 🎨 Display items
+        let cartHtml = '';
+        checkoutCart.forEach(item => {
+          const quantity = item.quantity || 1;
+          const subtotal = parseFloat(item.price) * quantity;
+
+          cartHtml += `
+            <div class="checkout-item">
+              <img src="/uploads/${item.image_path}" alt="${item.name}" class="checkout-item-image">
+              <div class="checkout-item-details">
+                <h6>${item.name}</h6>
+                <div class="item-meta">Color: ${item.color || 'N/A'}</div>
+                <div class="item-meta">Size: ${item.size || 'N/A'}</div>
+              </div>
+              <div class="price-display">₱${parseFloat(item.price).toFixed(2)}</div>
+              <div class="quantity-display">Qty: ${quantity}</div>
+              <div class="total-display">₱${subtotal.toFixed(2)}</div>
+            </div>`;
+        });
+        $('#cartSummary').html(cartHtml);
+
+        // 🚚 Load shipping regions
+        $.get('/api/orders/shipping', function (res) {
+          if (res.success && Array.isArray(res.data)) {
+            shippingRates = res.data;
+            res.data.forEach(region => {
+              $('#shippingRegion').append(`
+                <option value="${region.shipping_id}" data-rate="${region.rate}">
+                  ${region.region} (₱${parseFloat(region.rate).toFixed(2)})
+                </option>
+              `);
+            });
+          }
+        });
+
+        // 🔁 Recalculate grand total when region changes
+        $('#shippingRegion').on('change', function () {
+          const selectedRate = parseFloat($(this).find(':selected').data('rate')) || 0;
+          $('#shippingRate').text(`₱${selectedRate.toFixed(2)}`);
+          const newTotal = itemsTotal + selectedRate;
+          $('#grandTotal').text(`₱${newTotal.toFixed(2)}`);
+        });
+
+        // ✅ Place order
+        $('#checkoutForm').on('submit', function (e) {
+          e.preventDefault();
+
+          const shipping_id = $('#shippingRegion').val();
+          if (!shipping_id) {
+            alert("Please select a shipping region.");
+            return;
+          }
+
+          const token = localStorage.getItem('token');
+          const userId = localStorage.getItem('userId');
+          const datePlaced = new Date().toISOString().split('T')[0];
+
+          // 🔄 Get actual customer_id using userId
+          $.get(`/api/users/customers/${userId}`, function (res) {
+            if (!res.success || !res.data || !res.data.customer_id) {
+              alert("Cannot place order. Please complete your profile first.");
+              return;
+            }
+
+            // Map items to only include id and quantity
+            const orderPayload = {
+              customer_id: res.data.customer_id,
+              shipping_id,
+              items: checkoutCart.map(item => ({ id: item.id, quantity: item.quantity }))
+            };
+
+            $.ajax({
+              url: '/api/orders',
+              method: 'POST',
+              contentType: 'application/json',
+              headers: { Authorization: `Bearer ${token}` },
+              data: JSON.stringify(orderPayload),
+              success: function (res) {
+                if (res.success) {
+                  alert('Order placed successfully!');
+                  
+                  // Remove only checkoutCart items from full cart
+                  let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+                  const updatedCart = cart.filter(cartItem => {
+                    return !checkoutCart.some(checkedOut => checkedOut.id === cartItem.id);
+                  });
+
+                  localStorage.setItem('cart', JSON.stringify(updatedCart));
+                  localStorage.removeItem('checkoutCart');
+
+                  window.location.href = '/orders.html';
+                } else {
+                  alert('Failed to place order.');
+                }
+              },
+              error: function () {
+                alert('Error placing order. Please try again.');
+              }
+            });
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

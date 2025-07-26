@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<title>Order Details - LenSheem</title>
+<meta name="description" content="View your order details">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" href="assets/images/favicon.png" />
+<link rel="stylesheet" href="assets/css/plugins.css">
+<link rel="stylesheet" href="assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/responsive.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+/* Modern Formal Styling - Matching index.html */
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: #ffffff;
+    color: #333;
+    line-height: 1.6;
+    padding-top: 80px;
+}
+
+.pageWrapper {
+    min-height: 100vh;
+}
+
+.order-section {
+    padding: 80px 0;
+    background: #ffffff;
+}
+
+.section-header {
+    margin-bottom: 60px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 30px;
+}
+
+.section-header h2 {
+    font-size: 2.5rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.section-header p {
+    font-size: 1.1rem;
+    color: #666;
+    font-weight: 300;
+}
+
+.order-header {
+    background: #fff;
+    color: #000;
+    padding: 2rem;
+    border: 1px solid #000;
+    border-radius: 0;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.order-header h1 {
+    font-size: 1.8rem;
+    font-weight: 400;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.order-header p {
+    font-size: 0.9rem;
+    font-weight: 300;
+    margin-bottom: 0;
+    color: #666;
+}
+
+.order-card {
+    background: white;
+    border: 1px solid #f0f0f0;
+    border-radius: 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+}
+
+.order-card:hover {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border-color: #333;
+}
+
+.order-card .card-body {
+    padding: 2.5rem;
+}
+
+.order-card .card-title {
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: #333;
+    margin-bottom: 1.5rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.item-card {
+    border: 1px solid #f0f0f0;
+    border-radius: 0;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border-color: #333;
+}
+
+.item-image {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 0;
+    border: 1px solid #f0f0f0;
+    transition: transform 0.3s ease;
+}
+
+.item-card:hover .item-image {
+    transform: scale(1.05);
+}
+
+.item-gallery {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.gallery-image {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 0;
+    border: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.gallery-image:hover {
+    transform: scale(1.1);
+    border-color: #333;
+}
+
+.status-badge {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0;
+    font-weight: 400;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.status-pending { 
+    background-color: #f8f9fa; 
+    color: #333; 
+    border: 1px solid #ddd;
+}
+
+.status-shipped { 
+    background-color: #f8f9fa; 
+    color: #333; 
+    border: 1px solid #ddd;
+}
+
+.status-delivered { 
+    background-color: #000; 
+    color: #fff; 
+    border: 1px solid #000;
+}
+
+.status-cancelled { 
+    background-color: #f8f9fa; 
+    color: #333; 
+    border: 1px solid #ddd;
+}
+
+.back-btn {
+    background: #333;
+    border: 1px solid #333;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0;
+    color: white;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 400;
+}
+
+.back-btn:hover {
+    background: white;
+    color: #333;
+    border-color: #333;
+    text-decoration: none;
+}
+
+.loading {
+    text-align: center;
+    padding: 4rem;
+    color: #666;
+}
+
+.loading i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.error {
+    background: #f8f9fa;
+    color: #333;
+    padding: 1.5rem;
+    border-radius: 0;
+    margin: 1rem 0;
+    border: 1px solid #ddd;
+}
+
+.review-section {
+    background: #f8f9fa;
+    border: 1px solid #f0f0f0;
+    border-radius: 0;
+    padding: 2rem;
+    margin-top: 1.5rem;
+}
+
+.rating-stars {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.star {
+    font-size: 1.8rem;
+    color: #dee2e6;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.star.active {
+    color: #000;
+}
+
+.star:hover {
+    color: #000;
+}
+
+.review-form {
+    display: none;
+}
+
+.review-form.show {
+    display: block;
+}
+
+.review-textarea {
+    width: 100%;
+    min-height: 120px;
+    border: 1px solid #f0f0f0;
+    border-radius: 0;
+    padding: 1rem;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 0.9rem;
+}
+
+.review-textarea:focus {
+    border-color: #333;
+    box-shadow: none;
+    outline: none;
+}
+
+.review-btn {
+    background: #333;
+    border: 1px solid #333;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 400;
+}
+
+.review-btn:hover {
+    background: white;
+    color: #333;
+    border-color: #333;
+}
+
+.review-btn:disabled {
+    background: #6c757d;
+    border-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.reviewed-badge {
+    background: #000;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0;
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.review-link-section {
+    text-align: center;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border: 1px solid #f0f0f0;
+    border-radius: 0;
+    margin-top: 1rem;
+}
+
+.review-submitted {
+    font-size: 1rem;
+    font-weight: 400;
+    color: #333;
+    letter-spacing: 1px;
+}
+
+.image-upload-section {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    border: 2px dashed #f0f0f0;
+    border-radius: 0;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.image-upload-section.dragover {
+    border-color: #000;
+    background: #f8f9fa;
+}
+
+.image-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 1.5rem;
+}
+
+.image-preview-item {
+    position: relative;
+    width: 100px;
+    height: 100px;
+}
+
+.image-preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0;
+    border: 1px solid #f0f0f0;
+}
+
+.remove-image {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #000;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.remove-image:hover {
+    background: #333;
+    transform: scale(1.1);
+}
+
+.upload-btn {
+    background: #333;
+    border: 1px solid #333;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 0.5rem;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 400;
+}
+
+.upload-btn:hover {
+    background: white;
+    color: #333;
+    border-color: #333;
+}
+
+.file-input {
+    display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .order-header {
+        padding: 1.5rem 1rem;
+    }
+    
+    .order-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .order-section {
+        padding: 60px 0;
+    }
+    
+    .section-header h2 {
+        font-size: 2rem;
+    }
+    
+    .order-card .card-body {
+        padding: 1.5rem;
+    }
+    
+    .item-card {
+        padding: 1.5rem;
+    }
+    
+    .item-image {
+        width: 100px;
+        height: 100px;
+    }
+}
+</style>
+</head>
+
+<body class="template-index belle template-index-belle">
+    <div id="header"></div>
+
+    <div id="pre-loader">
+        <img src="assets/images/loader.gif" alt="Loading..." />
+    </div>
+
+    <div class="pageWrapper">
+        <div id="page-content">
+            <!-- Order Details Section -->
+            <div class="order-section">
+                <div class="container">
+                    <!-- Back Button -->
+                    <div class="mb-4">
+                        <a href="orders.html" class="back-btn">
+                            <i class="fas fa-arrow-left"></i> Back to Orders
+                        </a>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="loading" class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading order details...</p>
+                    </div>
+
+                    <!-- Error State -->
+                    <div id="error" class="error" style="display: none;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span id="errorMessage"></span>
+                    </div>
+
+                    <!-- Order Content -->
+                    <div id="orderContent" style="display: none;">
+                        <!-- Order Header -->
+                        <div class="order-header">
+                            <h1>
+                                <i class="fas fa-shopping-bag me-3"></i>
+                                Order #<span id="orderId"></span>
+                            </h1>
+                            <p>
+                                <i class="fas fa-calendar me-2"></i>
+                                Placed on <span id="orderDate"></span>
+                            </p>
+                            <div id="statusBadge" class="status-badge mt-2"></div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Order Details -->
+                            <div class="col-lg-8">
+                                <div class="order-card">
+                                    <div class="card-body">
+                                        <h4 class="card-title">
+                                            <i class="fas fa-box me-2"></i>
+                                            Order Items
+                                        </h4>
+                                        <div id="itemsContainer"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Order Summary -->
+                            <div class="col-lg-4">
+                                <div class="order-card">
+                                    <div class="card-body">
+                                        <h4 class="card-title">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            Order Summary
+                                        </h4>
+                                        
+                                        <div class="mb-4">
+                                            <strong>Order Status:</strong>
+                                            <div id="orderStatus" class="mt-2"></div>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <strong>Shipping Details:</strong>
+                                            <div id="shippingDetails" class="mt-2"></div>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <strong>Order Timeline:</strong>
+                                            <div id="orderTimeline" class="mt-3">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <i class="fas fa-check-circle me-3" style="color: #000;"></i>
+                                                    <span>Order Placed</span>
+                                                </div>
+                                                <div id="shippedStatus" class="d-flex align-items-center mb-3" style="display: none !important;">
+                                                    <i class="fas fa-shipping-fast me-3" style="color: #000;"></i>
+                                                    <span>Order Shipped</span>
+                                                </div>
+                                                <div id="deliveredStatus" class="d-flex align-items-center mb-3" style="display: none !important;">
+                                                    <i class="fas fa-home me-3" style="color: #000;"></i>
+                                                    <span>Order Delivered</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div id="reviewSection" class="mb-4" style="display: none;">
+                                            <strong>Review Status:</strong>
+                                            <div class="mt-2">
+                                                <i class="fas fa-star me-2" style="color: #000;"></i>
+                                                <span>You can now review your items!</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="border-top pt-4">
+                                            <div class="d-flex justify-content-between mb-3">
+                                                <span>Subtotal:</span>
+                                                <span id="subtotal"></span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-3">
+                                                <span>Shipping:</span>
+                                                <span id="shippingCost"></span>
+                                            </div>
+                                            <div class="d-flex justify-content-between fw-bold">
+                                                <span>Total:</span>
+                                                <span id="total"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/vendor/jquery-3.3.1.min.js"></script>
+    <script src="assets/js/vendor/modernizr-3.6.0.min.js"></script>
+    <script src="assets/js/vendor/jquery.cookie.js"></script>
+    <script src="assets/js/vendor/wow.min.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/plugins.js"></script>
+    <script src="assets/js/popper.min.js"></script>
+    <script src="assets/js/lazysizes.js"></script>
+    <script src="assets/js/main.js"></script>
+
+    <script>
+        // Load header
+        $(document).ready(function() {
+            $('#header').load('header.html', function() {
+                // Header loaded successfully
+                console.log('Header loaded');
+            });
+        });
+
+        // Check if user is logged in (optional for viewing order details)
+        const token = localStorage.getItem('token');
+        const customerId = localStorage.getItem('userId'); // Changed from 'customer_id' to 'userId'
+        
+        // Global variable to track reviewed items
+        window.reviewedItems = new Set();
+        
+        console.log('Auth check:', { token: !!token, customerId: !!customerId });
+        
+        if (!token || !customerId) {
+            console.log('User not logged in - review functionality will be disabled');
+            // Don't redirect, just disable review functionality
+        }
+
+        // Get order ID from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('id');
+
+        if (!orderId) {
+            showError('No order ID provided');
+        } else {
+            loadOrderDetails(orderId);
+        }
+
+        function loadOrderDetails(orderId) {
+            console.log('Loading order details for ID:', orderId);
+            $.get(`/api/orders/${orderId}?customer_id=${customerId}`, function(response) {
+                console.log('API Response:', response);
+                if (response.success) {
+                    displayOrder(response.data);
+                } else {
+                    showError(response.message || 'Failed to load order details');
+                }
+            }).fail(function(xhr, status, error) {
+                console.error('API Error:', {xhr, status, error});
+                console.error('Response text:', xhr.responseText);
+                showError('Failed to load order details. Please try again.');
+            });
+        }
+
+        function displayOrder(order) {
+            // Hide loading, show content
+            $('#loading').hide();
+            $('#orderContent').show();
+
+            // Set basic order info
+            $('#orderId').text(order.orderinfo_id);
+            $('#orderDate').text(formatDate(order.date_placed));
+            
+            // Set status
+            const statusClass = getStatusClass(order.status);
+            $('#statusBadge').removeClass().addClass(`status-badge ${statusClass}`).text(order.status);
+            $('#orderStatus').text(order.status);
+
+            // Set shipping details
+            $('#shippingDetails').html(`
+                <div>Region: ${order.region}</div>
+                <div>Rate: ₱${order.rate}</div>
+            `);
+
+            // Show timeline based on status
+            if (order.date_shipped) {
+                $('#shippedStatus').show();
+            }
+            if (order.date_delivered) {
+                $('#deliveredStatus').show();
+            }
+
+            // Show review section if order is delivered and user is logged in
+            console.log('Order status:', order.status);
+            console.log('Checking for delivered status...');
+            
+            if (order.status === 'Delivered') {
+                const customerId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
+                console.log('Customer ID found:', customerId);
+                
+                if (customerId) {
+                    console.log('Showing review section for logged in user');
+                    $('#reviewSection').show();
+                    // Check for existing reviews immediately and after DOM is ready
+                    checkExistingReviews(order.orderinfo_id, order.items);
+                    setTimeout(() => {
+                        checkExistingReviews(order.orderinfo_id, order.items);
+                    }, 500);
+                } else {
+                    console.log('User not logged in - showing login prompt');
+                    // Show a message to log in for reviews
+                    $('#reviewSection').html(`
+                        <div class="alert" style="background: #f8f9fa; border: 1px solid #ddd; color: #333;">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <a href="login.html" style="color: #000;">Log in</a> to review your items
+                        </div>
+                    `).show();
+                }
+            } else {
+                console.log('Order not delivered, status:', order.status);
+            }
+
+            // Calculate totals
+            const subtotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const shipping = parseFloat(order.rate);
+            const total = subtotal + shipping;
+
+            $('#subtotal').text(`₱${subtotal.toFixed(2)}`);
+            $('#shippingCost').text(`₱${shipping.toFixed(2)}`);
+            $('#total').text(`₱${total.toFixed(2)}`);
+
+            // Display items
+            const itemsHtml = order.items.map(item => {
+                const itemTotal = item.price * item.quantity;
+                const imagesHtml = item.all_images && item.all_images.length > 0 
+                  ? `<div class="item-gallery">
+                       ${item.all_images.map(img => `<img src="/uploads/${img}" class="gallery-image" onclick="openImageModal('${img}')" alt="${item.item_name}">`).join('')}
+                     </div>`
+                  : '';
+
+                // Review section - only show if order is delivered and user is logged in
+                const customerId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
+                console.log('Item review check - Status:', order.status, 'Customer ID:', customerId, 'Item ID:', item.item_id);
+                const reviewSection = (order.status === 'Delivered' && customerId) ? `
+                  <div class="review-section" id="review-section-${item.item_id}">
+                    <!-- Review Form Section (shown when no review exists) -->
+                    <div id="review-form-container-${item.item_id}" style="display: none;">
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">
+                          <i class="fas fa-star me-2"></i>
+                          Review this item
+                        </h6>
+                      </div>
+                      
+                      <div class="rating-stars" id="stars-${item.item_id}">
+                        <i class="fas fa-star star" data-rating="1" data-item-id="${item.item_id}"></i>
+                        <i class="fas fa-star star" data-rating="2" data-item-id="${item.item_id}"></i>
+                        <i class="fas fa-star star" data-rating="3" data-item-id="${item.item_id}"></i>
+                        <i class="fas fa-star star" data-rating="4" data-item-id="${item.item_id}"></i>
+                        <i class="fas fa-star star" data-rating="5" data-item-id="${item.item_id}"></i>
+                      </div>
+                      
+                      <div class="review-form" id="review-form-${item.item_id}">
+                        <textarea class="review-textarea" id="review-text-${item.item_id}" placeholder="Share your experience with this item..."></textarea>
+                        
+                        <!-- Image Upload Section -->
+                        <div class="image-upload-section" id="image-upload-${item.item_id}">
+                          <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-images me-2"></i>
+                            <span>Add photos to your review (optional)</span>
+                          </div>
+                          <div class="d-flex align-items-center">
+                            <button type="button" class="upload-btn" onclick="document.getElementById('file-input-${item.item_id}').click()">
+                              <i class="fas fa-upload me-1"></i>Choose Images
+                            </button>
+                            <span class="text-muted">or drag and drop images here</span>
+                          </div>
+                          <input type="file" class="file-input" id="file-input-${item.item_id}" multiple accept="image/*" onchange="handleImageUpload(${item.item_id}, this)">
+                          
+                          <!-- Image Preview -->
+                          <div class="image-preview" id="image-preview-${item.item_id}"></div>
+                        </div>
+                        
+                        <button class="review-btn mt-3" onclick="submitReview(${order.orderinfo_id}, ${item.item_id})" id="submit-review-${item.item_id}">
+                          <i class="fas fa-paper-plane me-1"></i>Submit Review
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <!-- Loading Section (shown while checking review status) -->
+                    <div id="review-loading-${item.item_id}">
+                      <div class="review-link-section">
+                        <div class="text-center">
+                          <i class="fas fa-spinner fa-spin me-2" style="color: #000;"></i>
+                          <span class="review-submitted">Checking review status...</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Reviewed Section (shown when review exists) -->
+                    <div id="reviewed-container-${item.item_id}" style="display: none;">
+                      <div class="review-link-section">
+                        <div class="text-center">
+                          <i class="fas fa-check-circle me-2" style="color: #000;"></i>
+                          <span class="review-submitted">Review Submitted</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ` : '';
+
+                return `
+                  <div class="item-card">
+                    <div class="row align-items-center">
+                      <div class="col-md-2">
+                        <img src="/uploads/${item.image || 'default.jpg'}" class="item-image" alt="${item.item_name}">
+                      </div>
+                      <div class="col-md-6">
+                        <h6 class="mb-2">${item.item_name}</h6>
+                        <p class="text-muted mb-2">Quantity: ${item.quantity}</p>
+                        <p class="text-muted mb-0">Price: ₱${item.price}</p>
+                        ${imagesHtml}
+                      </div>
+                      <div class="col-md-4 text-end">
+                        <strong>₱${itemTotal.toFixed(2)}</strong>
+                      </div>
+                    </div>
+                    ${reviewSection}
+                  </div>
+                `;
+            }).join('');
+
+            $('#itemsContainer').html(itemsHtml);
+        }
+
+        function getStatusClass(status) {
+            const statusMap = {
+                'Pending': 'status-pending',
+                'Shipped': 'status-shipped',
+                'Delivered': 'status-delivered',
+                'Cancelled': 'status-cancelled'
+            };
+            return statusMap[status] || 'status-pending';
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            return new Date(dateString).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function showError(message) {
+            $('#loading').hide();
+            $('#errorMessage').text(message);
+            $('#error').show();
+        }
+
+        function openImageModal(imagePath) {
+            // Create a simple modal for image viewing
+            const modal = $(`
+                <div class="modal fade" id="imageModal" tabindex="-1">
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">Item Image</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                      </div>
+                      <div class="modal-body text-center">
+                        <img src="/uploads/${imagePath}" class="img-fluid" alt="Item Image">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            `);
+            
+            $('body').append(modal);
+            modal.modal('show');
+            
+            modal.on('hidden.bs.modal', function() {
+                modal.remove();
+            });
+        }
+
+        // Star rating functionality
+        $(document).on('click', '.star', function() {
+            const rating = $(this).data('rating');
+            const itemId = $(this).data('item-id');
+            
+            // Check if item has already been reviewed
+            if (window.reviewedItems && window.reviewedItems.has(itemId)) {
+                console.log('Item already reviewed, preventing interaction');
+                return;
+            }
+            
+            const starsContainer = $(`#stars-${itemId}`);
+            
+            // Update star display
+            starsContainer.find('.star').removeClass('active');
+            starsContainer.find(`[data-rating="${rating}"]`).addClass('active');
+            starsContainer.find(`[data-rating="${rating}"]`).prevAll().addClass('active');
+            
+            // Store rating for this item
+            window.itemRatings = window.itemRatings || {};
+            window.itemRatings[itemId] = rating;
+            
+            // Show review form
+            $(`#review-form-${itemId}`).addClass('show');
+        });
+
+        // Check if reviews already exist for items
+        function checkExistingReviews(orderId, items) {
+            // Get customer ID from localStorage or session
+            const customerId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
+            
+            console.log('Checking existing reviews for customer:', customerId);
+            
+            if (!customerId) {
+                console.error('Customer ID not found - user may not be logged in');
+                return;
+            }
+
+            items.forEach(item => {
+                console.log('Checking review for item:', item.item_id);
+                
+                $.get('/api/reviews/exists', {
+                    customer_id: customerId,
+                    item_id: item.item_id
+                }, function(response) {
+                    console.log('Review check response for item', item.item_id, ':', response);
+                    // Hide loading state
+                    $(`#review-loading-${item.item_id}`).hide();
+                    
+                    if (response.success && response.reviewed) {
+                        // Hide review form container and show reviewed container
+                        $(`#review-form-container-${item.item_id}`).hide();
+                        $(`#reviewed-container-${item.item_id}`).show();
+                        // Add to global tracking
+                        window.reviewedItems.add(item.item_id);
+                        console.log('Review already exists for item', item.item_id, '- hiding form');
+                    } else {
+                        // Show review form container and hide reviewed container
+                        $(`#review-form-container-${item.item_id}`).show();
+                        $(`#reviewed-container-${item.item_id}`).hide();
+                        console.log('No review exists for item', item.item_id, '- showing form');
+                    }
+                }).fail(function(xhr, status, error) {
+                    console.error('Failed to check review status for item:', item.item_id, xhr.responseText);
+                    console.error('Status:', xhr.status);
+                    // Hide loading state and show review form on error
+                    $(`#review-loading-${item.item_id}`).hide();
+                    $(`#review-form-container-${item.item_id}`).show();
+                });
+            });
+        }
+
+        // Handle image upload
+        function handleImageUpload(itemId, input) {
+            const files = Array.from(input.files);
+            const previewContainer = $(`#image-preview-${itemId}`);
+            
+            files.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const imageId = Date.now() + Math.random();
+                        const previewHtml = `
+                          <div class="image-preview-item" id="preview-${imageId}">
+                            <img src="${e.target.result}" alt="Preview">
+                            <button type="button" class="remove-image" onclick="removeImage(${itemId}, '${imageId}')">
+                              <i class="fas fa-times"></i>
+                            </button>
+                          </div>
+                        `;
+                        previewContainer.append(previewHtml);
+                        
+                        // Store file reference
+                        if (!window.reviewImages) window.reviewImages = {};
+                        if (!window.reviewImages[itemId]) window.reviewImages[itemId] = [];
+                        window.reviewImages[itemId].push({
+                            id: imageId,
+                            file: file
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Clear input
+            input.value = '';
+        }
+
+        // Remove image from preview
+        function removeImage(itemId, imageId) {
+            $(`#preview-${imageId}`).remove();
+            
+            // Remove from stored files
+            if (window.reviewImages && window.reviewImages[itemId]) {
+                window.reviewImages[itemId] = window.reviewImages[itemId].filter(img => img.id !== imageId);
+            }
+        }
+
+        // Setup drag and drop for image upload sections
+        $(document).on('DOMNodeInserted', function(e) {
+            if (e.target.classList && e.target.classList.contains('image-upload-section')) {
+                setupDragAndDrop(e.target);
+            }
+        });
+
+        function setupDragAndDrop(uploadSection) {
+            const itemId = uploadSection.id.split('-')[2];
+            
+            uploadSection.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+            
+            uploadSection.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+            });
+            
+            uploadSection.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+                
+                const files = Array.from(e.dataTransfer.files);
+                const imageFiles = files.filter(file => file.type.startsWith('image/'));
+                
+                if (imageFiles.length > 0) {
+                    const input = document.getElementById(`file-input-${itemId}`);
+                    
+                    // Add files to input using DataTransfer
+                    const dt = new DataTransfer();
+                    imageFiles.forEach(file => dt.items.add(file));
+                    input.files = dt.files;
+                    
+                    // Trigger change event
+                    handleImageUpload(itemId, input);
+                }
+            });
+        }
+
+                    // Submit review with images
+            function submitReview(orderId, itemId) {
+                const customerId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
+                const rating = window.itemRatings && window.itemRatings[itemId];
+                const reviewText = $(`#review-text-${itemId}`).val().trim();
+                
+                console.log('Submitting review:', { orderId, itemId, customerId, rating, reviewText });
+                
+                if (!customerId) {
+                    alert('Please log in to submit a review');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                if (!rating) {
+                    alert('Please select a rating');
+                    return;
+                }
+
+                // Disable submit button
+                $(`#submit-review-${itemId}`).prop('disabled', true).text('Submitting...');
+
+                // Create FormData for multipart/form-data submission
+                const formData = new FormData();
+                formData.append('orderinfo_id', orderId);
+                formData.append('customer_id', customerId);
+                formData.append('item_id', itemId);
+                formData.append('rating', rating);
+                formData.append('review_text', reviewText);
+
+                // Add images if any
+                const images = window.reviewImages && window.reviewImages[itemId] ? window.reviewImages[itemId] : [];
+                console.log('Images to upload:', images);
+                images.forEach((imageData, index) => {
+                    console.log('Adding image:', imageData.file.name, imageData.file.type, imageData.file.size);
+                    formData.append('images', imageData.file);
+                });
+
+                // Log FormData contents for debugging
+                console.log('FormData contents:');
+                for (let [key, value] of formData.entries()) {
+                    console.log(key, ':', value);
+                }
+
+                $.ajax({
+                    url: '/api/reviews/create',
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        console.log('Review submission success:', response);
+                        if (response.success) {
+                            // Show success message
+                            alert('Review submitted successfully!');
+                            
+                            // Completely remove the entire review section
+                            $(`#review-section-${itemId}`).remove();
+                            
+                            // Clear stored images
+                            if (window.reviewImages && window.reviewImages[itemId]) {
+                                delete window.reviewImages[itemId];
+                            }
+                            
+                            // Clear stored rating
+                            if (window.itemRatings && window.itemRatings[itemId]) {
+                                delete window.itemRatings[itemId];
+                            }
+                        } else {
+                            alert(response.message || 'Failed to submit review');
+                            $(`#submit-review-${itemId}`).prop('disabled', false).html('<i class="fas fa-paper-plane me-1"></i>Submit Review');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Review submission error:', { xhr, status, error });
+                        console.error('Response text:', xhr.responseText);
+                        console.error('Status code:', xhr.status);
+                        console.error('Status text:', xhr.statusText);
+                        
+                        // Try to parse error response
+                        let errorMessage = 'Failed to submit review. Please try again.';
+                        let shouldHideReviewSection = false;
+                        
+                        try {
+                            const errorResponse = JSON.parse(xhr.responseText);
+                            if (errorResponse.message) {
+                                errorMessage = errorResponse.message;
+                                // If the error message indicates review already exists, hide the review section
+                                if (errorResponse.message.toLowerCase().includes('already reviewed') || 
+                                    errorResponse.message.toLowerCase().includes('already exists')) {
+                                    shouldHideReviewSection = true;
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Could not parse error response:', e);
+                        }
+                        
+                        alert(errorMessage);
+                        
+                        if (shouldHideReviewSection) {
+                            // Hide the review form and show reviewed message
+                            $(`#review-form-container-${itemId}`).hide();
+                            $(`#reviewed-container-${itemId}`).show();
+                            // Add to global tracking
+                            window.reviewedItems.add(itemId);
+                            console.log('Review already exists - hiding form and showing reviewed message');
+                        }
+                        
+                        $(`#submit-review-${itemId}`).prop('disabled', false).html('<i class="fas fa-paper-plane me-1"></i>Submit Review');
+                    }
+                });
+            }
+    </script>
+</body>
+</html>

@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Items</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.6/css/all.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.5/css/buttons.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    .admin-items-wrapper {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 30px 20px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(60,60,60,0.08);
+    }
+    .section-header {
+      margin-bottom: 40px;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 20px;
+      text-align: center;
+    }
+    .section-header h2 {
+      font-size: 2.2rem;
+      font-weight: 300;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .section-header p {
+      color: #666;
+      font-size: 1.05em;
+      font-weight: 300;
+    }
+    .items-table-container {
+      overflow-x: auto;
+    }
+    #itable {
+      width: 100% !important;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-bottom: 0;
+    }
+    #itable thead th {
+      background: #f4f6f8;
+      color: #333;
+      font-weight: 500;
+      border-bottom: 2px solid #e0e0e0;
+      padding: 14px 10px;
+      font-size: 1rem;
+    }
+    #itable tbody td {
+      padding: 12px 10px;
+      vertical-align: middle;
+      font-size: 0.98rem;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    #itable tbody tr:last-child td {
+      border-bottom: none;
+    }
+    .btn-info, .btn-primary, .btn-success, .btn-secondary {
+      border-radius: 6px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      min-width: 100px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-info {
+      background: #2c3e50;
+      border: none;
+    }
+    .btn-info:hover {
+      background: #1a232b;
+    }
+    .btn-primary {
+      background: #2c3e50;
+      border: none;
+    }
+    .btn-primary:hover {
+      background: #1a232b;
+    }
+    .btn-success {
+      background: #218c5b;
+      border: none;
+    }
+    .btn-success:hover {
+      background: #176943;
+    }
+    .btn-secondary {
+      background: #e3e6ea;
+      color: #2c3e50;
+      border: none;
+    }
+    .btn-secondary:hover {
+      background: #cfd4da;
+      color: #222;
+    }
+    .editBtn i, .deleteBtn i, .restoreBtn i {
+      transition: transform 0.1s, color 0.2s;
+    }
+    .editBtn:hover i {
+      color: #0056b3 !important;
+      transform: scale(1.15);
+    }
+    .deleteBtn:hover i {
+      color: #c0392b !important;
+      transform: scale(1.15);
+    }
+    .restoreBtn:hover i {
+      color: #218c5b !important;
+      transform: scale(1.15);
+    }
+    #itable td img {
+      width: 100px;
+      height: auto;
+      object-fit: contain;
+      display: inline-block;
+      border-radius: 6px;
+      border: 1px solid #e3e6ea;
+      box-shadow: 0 1px 4px rgba(44,62,80,0.06);
+      margin: 2px 4px 2px 0;
+    }
+    /* Modal styling */
+    .modal-content {
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(44,62,80,0.12);
+      border: none;
+    }
+    .modal-header {
+      background: #f1f3f6;
+      border-bottom: 1px solid #e3e6ea;
+      border-radius: 14px 14px 0 0;
+    }
+    .modal-title {
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    .btn-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #888;
+      opacity: 0.7;
+      transition: color 0.2s;
+    }
+    .btn-close:hover {
+      color: #2c3e50;
+      opacity: 1;
+    }
+    .form-group label {
+      font-weight: 500;
+      color: #2c3e50;
+    }
+    .form-control {
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      box-shadow: none;
+      font-size: 1rem;
+    }
+    .form-control:focus {
+      border-color: #2c3e50;
+      box-shadow: 0 0 0 0.1rem rgba(44,62,80,0.08);
+    }
+    #itemPreview img {
+      border-radius: 8px;
+      border: 1px solid #e3e6ea;
+      box-shadow: 0 2px 8px rgba(44,62,80,0.07);
+      margin-bottom: 0.5rem;
+      width: 160px;
+      height: auto;
+      object-fit: contain;
+      display: inline-block;
+    }
+    .modal-footer {
+      border-top: 1px solid #e3e6ea;
+      background: #f9fafb;
+      border-radius: 0 0 14px 14px;
+    }
+    /* DataTables style */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+      border-radius: 4px;
+      border: 1px solid #e0e0e0;
+      background: #f8f9fa;
+      color: #333 !important;
+      margin: 0 2px;
+      padding: 4px 12px;
+      font-size: 0.95em;
+      transition: background 0.2s;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+      background: #333 !important;
+      color: #fff !important;
+      border-color: #333;
+    }
+    .dataTables_wrapper .dataTables_length select {
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      padding: 4px 10px;
+      font-size: 0.95em;
+      background: #fff;
+      color: #333;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      padding: 4px 10px;
+      font-size: 0.95em;
+      background: #fff;
+      color: #333;
+      min-width: 220px;
+      width: 100%;
+      max-width: 320px;
+    }
+    @media (max-width: 900px) {
+      .admin-items-wrapper {
+        padding: 15px 2vw;
+      }
+      .section-header h2 {
+        font-size: 1.5rem;
+      }
+    }
+    @media (max-width: 600px) {
+      .admin-items-wrapper {
+        padding: 5px 0.5vw;
+      }
+      .section-header {
+        padding-bottom: 10px;
+      }
+      #itable thead th, #itable tbody td {
+        font-size: 0.92rem;
+        padding: 8px 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== HEADER SECTION ==================== -->
+  <div id="header"></div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <div class="admin-items-wrapper">
+    <!-- Page Title and Description -->
+    <div class="section-header">
+      <h2>All Items <span style="font-size:1rem;font-weight:400;color:#888;">(Admin)</span></h2>
+      <p>Manage and review all items. Add, edit, or delete as needed.</p>
+    </div>
+    
+    <!-- Add Item Button -->
+    <button type="button" class="btn btn-info mb-3" data-toggle="modal" data-target="#itemModal">
+      <i class="fas fa-plus mr-2"></i> Add Item
+    </button>
+    
+    <!-- Items Table Container with Infinite Scroll -->
+    <div class="items-table-container" style="max-height: 500px; overflow-y: auto;">
+      <!-- Main Items Table -->
+      <table id="itable" class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>Item ID</th>
+            <th>Item Name</th>
+            <th>Image</th>
+            <th>Description</th>
+            <th>Cost Price</th>
+            <th>Sell Price</th>
+            <th>Quantity</th>
+            <th>Category</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="ibody"></tbody>
+      </table>
+      
+      <!-- Loading Spinner for Infinite Scroll -->
+      <div id="spinner" style="display:none; text-align:center; margin-top:10px;">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ITEM MODAL (Add/Edit Form) ==================== -->
+  <div class="modal fade" id="itemModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Item Form</h4>
+          <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">&times;</button>
+        </div>
+        
+        <!-- Modal Body - Form Fields -->
+        <div class="modal-body">
+          <form id="iform" enctype="multipart/form-data">
+            <input type="hidden" id="itemId" name="item_id" />
+            
+            <!-- Item Name Field -->
+            <div class="form-group">
+              <label>Item Name</label>
+              <input type="text" class="form-control" id="name" name="item_name" />
+            </div>
+            
+            <!-- Description Field -->
+            <div class="form-group">
+              <label>Description</label>
+              <input type="text" class="form-control" id="desc" name="description" />
+            </div>
+            
+            <!-- Sell Price Field -->
+            <div class="form-group">
+              <label>Sell Price</label>
+              <input type="number" class="form-control" id="sell" name="sell_price" />
+            </div>
+            
+            <!-- Cost Price Field -->
+            <div class="form-group">
+              <label>Cost Price</label>
+              <input type="number" class="form-control" id="cost" name="cost_price" />
+            </div>
+            
+            <!-- Quantity Field -->
+            <div class="form-group">
+              <label>Quantity</label>
+              <input type="number" class="form-control" id="qty" name="quantity" />
+            </div>
+            
+            <!-- Category Dropdown -->
+            <div class="form-group">
+              <label>Category</label>
+              <select class="form-control" id="category" name="category_id"></select>
+            </div>
+            
+            <!-- Multiple Image Upload Field -->
+            <div class="form-group">
+              <label>Image</label>
+              <input type="file" class="form-control" id="img" name="images" multiple />
+              <!-- Image Preview Area -->
+              <div id="itemPreview" class="mt-2"></div>
+            </div>
+          </form>
+        </div>
+        
+        <!-- Modal Footer - Action Buttons -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <!-- Save Button (for new items) -->
+          <button id="itemSubmit" type="submit" class="btn btn-primary">Save</button>
+          <!-- Update Button (for editing items) -->
+          <button id="itemUpdate" type="submit" class="btn btn-success" style="display: none;">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== JAVASCRIPT LIBRARIES ==================== -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/1.6.5/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/1.6.5/js/buttons.bootstrap4.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.3.5/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.5.2/bootbox.min.js"></script>
+  <!-- jQuery Validation Plugin for Form Validation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+  
+  <!-- ==================== MAIN JAVASCRIPT CODE ==================== -->
+  <script>
+    $(document).ready(function () {
+      // ==================== INITIALIZATION ====================
+      
+      // Load admin header
+      $('#header').load('/header_admin.html', function () {
+          renderCart();
+        });
+
+      // ==================== API ENDPOINTS ====================
+      const baseUrl = 'http://localhost:3000/api/item/admin'; // CRUD API endpoint
+      const categoryUrl = 'http://localhost:3000/api/category'; // Category API endpoint
+      const imageBaseUrl = 'http://localhost:3000/uploads/'; // Image base URL
+
+      // ==================== JQUERY VALIDATION SETUP ====================
+      $('#iform').validate({
+        rules: {
+          item_name: {
+            required: true,
+            minlength: 2,
+            maxlength: 100
+          },
+          description: {
+            required: true,
+            minlength: 10,
+            maxlength: 500
+          },
+          sell_price: {
+            required: true,
+            number: true,
+            min: 0
+          },
+          cost_price: {
+            required: true,
+            number: true,
+            min: 0
+          },
+          quantity: {
+            required: true,
+            digits: true,
+            min: 0
+          },
+          category_id: {
+            required: true
+          }
+        },
+        messages: {
+          item_name: {
+            required: "Please enter an item name",
+            minlength: "Item name must be at least 2 characters long",
+            maxlength: "Item name cannot exceed 100 characters"
+          },
+          description: {
+            required: "Please enter a description",
+            minlength: "Description must be at least 10 characters long",
+            maxlength: "Description cannot exceed 500 characters"
+          },
+          sell_price: {
+            required: "Please enter a sell price",
+            number: "Please enter a valid number",
+            min: "Sell price must be greater than or equal to 0"
+          },
+          cost_price: {
+            required: "Please enter a cost price",
+            number: "Please enter a valid number",
+            min: "Cost price must be greater than or equal to 0"
+          },
+          quantity: {
+            required: "Please enter a quantity",
+            digits: "Please enter a valid whole number",
+            min: "Quantity must be greater than or equal to 0"
+          },
+          category_id: {
+            required: "Please select a category"
+          }
+        },
+        errorElement: 'span',
+        errorClass: 'text-danger',
+        highlight: function(element) {
+          $(element).addClass('is-invalid');
+        },
+        unhighlight: function(element) {
+          $(element).removeClass('is-invalid');
+        },
+        errorPlacement: function(error, element) {
+          error.insertAfter(element);
+        }
+      });
+
+      // ==================== LOAD CATEGORIES ====================
+      $.get(categoryUrl, function (res) {
+        if (res.success) {
+          res.data.forEach(cat => {
+            $('#category').append(`<option value="${cat.category_id}">${cat.description}</option>`);
+          });
+        }
+      });
+
+      // ==================== INFINITE SCROLL VARIABLES ====================
+      let currentPage = 1;
+      const pageSize = 10;
+      let totalItems = 0;
+      let loading = false;
+      let allLoaded = false;
+
+      // ==================== FETCH ITEMS FUNCTION ====================
+      // Load items from backend with pagination support
+      function fetchItems(page = 1, append = false) {
+        if (loading || allLoaded) return;
+        loading = true;
+        $('#spinner').show();
+        $.get(`${baseUrl}?page=${page}&limit=${pageSize}`, function (res) {
+          const items = res.data || [];
+          totalItems = res.total || items.length;
+          if (items.length < pageSize || ((page - 1) * pageSize + items.length) >= totalItems) {
+            allLoaded = true;
+          }
+          renderTable(items, append);
+          loading = false;
+          $('#spinner').hide();
+        }).fail(function() {
+          loading = false;
+          $('#spinner').hide();
+        });
+      }
+
+      // ==================== RENDER TABLE FUNCTION ====================
+      // Render items in the table with CRUD action buttons
+      function renderTable(items, append = false) {
+        const tbody = $('#ibody');
+        if (!append) tbody.empty();
+        items.forEach(data => {
+          // Handle multiple images display
+          const images = (data.all_images || []).filter(Boolean);
+          const imgHtml = images.length ? images.map(img => `<img src="${imageBaseUrl}${img}" width="40" height="40" class="mr-1 mb-1"/>`).join('') : 'No Image';
+          
+          // Create action buttons based on item status (deleted or active)
+          const actionHtml = data.deleted_at ?
+            `<a href="#" class="restoreBtn ml-2" data-id="${data.item_id}"><i class="fas fa-undo text-success" style="font-size: 20px;"></i></a>` :
+            `<a href="#" class="editBtn" data-id="${data.item_id}"><i class="fas fa-edit text-primary" style="font-size: 20px;"></i></a>
+             <a href="#" class="deleteBtn ml-2" data-id="${data.item_id}"><i class="fas fa-trash-alt text-danger" style="font-size: 20px;"></i></a>`;
+          
+          // Append table row with item data
+          tbody.append(`
+            <tr>
+              <td>${data.item_id}</td>
+              <td>${data.item_name}</td>
+              <td>${imgHtml}</td>
+              <td>${data.description || ''}</td>
+              <td>${data.cost_price || ''}</td>
+              <td>${data.sell_price || ''}</td>
+              <td>${data.quantity || ''}</td>
+              <td>${data.category_name || ''}</td>
+              <td>${actionHtml}</td>
+            </tr>
+          `);
+        });
+      }
+
+      // ==================== INITIAL DATA LOAD ====================
+      // Load first page of items on page load
+      fetchItems(currentPage);
+
+      // ==================== ADD ITEM MODAL HANDLER ====================
+      // Reset form when opening Add Item modal
+      $('[data-target="#itemModal"]').on('click', function () {
+        $('#iform')[0].reset();
+        $('#itemId').val('');
+        $('#itemSubmit').show();
+        $('#itemUpdate').hide();
+        $('#itemPreview').empty();
+        // Clear validation errors
+        $('#iform').find('.is-invalid').removeClass('is-invalid');
+        $('#iform').find('.text-danger').remove();
+      });
+
+      // ==================== INFINITE SCROLL HANDLER ====================
+      // Load more items when scrolling near bottom
+      $('.items-table-container').on('scroll', function () {
+        const container = $(this)[0];
+        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 50) {
+          if (!loading && !allLoaded) {
+            currentPage++;
+            fetchItems(currentPage, true);
+          }
+        }
+      });
+
+      // ==================== CREATE ITEM (POST) ====================
+      // Handle form submission for creating new items
+      $('#itemSubmit').click(function (e) {
+        e.preventDefault();
+        // Validate form before submission
+        if (!$('#iform').valid()) {
+          return false;
+        }
+        const formData = new FormData($('#iform')[0]);
+        $.ajax({
+          url: baseUrl,
+          method: 'POST',
+          data: formData,
+          contentType: false,
+          processData: false,
+          success: function () {
+            Swal.fire('Success', 'Item created!', 'success');
+            $('#itemModal').modal('hide');
+            // Reset and reload from first page
+            currentPage = 1;
+            allLoaded = false;
+            fetchItems(currentPage);
+          },
+          error: function (err) {
+            console.error(err);
+            Swal.fire('Error', 'Item creation failed.', 'error');
+          }
+        });
+      });
+
+      // ==================== EDIT ITEM (GET + PUT) ====================
+      // Handle edit button click - load item data into form
+      $('#itable tbody').on('click', '.editBtn', function (e) {
+        e.preventDefault();
+        const id = $(this).data('id');
+        $('#itemSubmit').hide();
+        $('#itemUpdate').show();
+        $('#itemPreview').empty();
+        // Clear validation errors
+        $('#iform').find('.is-invalid').removeClass('is-invalid');
+        $('#iform').find('.text-danger').remove();
+
+        // Fetch item data for editing
+        $.get(`${baseUrl}/${id}`, function (res) {
+          const item = res.result[0];
+          $('#itemId').val(item.item_id);
+          $('#name').val(item.item_name);
+          $('#desc').val(item.description);
+          $('#sell').val(item.sell_price);
+          $('#cost').val(item.cost_price);
+          $('#qty').val(item.quantity);
+          $('#category').val(item.category_id);
+
+          // Show all images in preview
+          const images = [...new Set(item.all_images || [])]; // Deduplicate just in case
+          const previews = images.map(img => `<img src="${imageBaseUrl}${img}" width="100" class="mr-2 mb-2" />`).join('');
+          $('#itemPreview').html(previews);
+
+          $('#itemModal').modal('show');
+        }).fail(function () {
+          Swal.fire('Error', 'Failed to fetch item data.', 'error');
+        });
+      });
+
+      // Handle update button click - save edited item
+      $('#itemUpdate').click(function (e) {
+        e.preventDefault();
+        // Validate form before submission
+        if (!$('#iform').valid()) {
+          return false;
+        }
+        const id = $('#itemId').val();
+        const formData = new FormData($('#iform')[0]);
+        $.ajax({
+          url: `${baseUrl}/${id}`,
+          method: 'PUT',
+          data: formData,
+          contentType: false,
+          processData: false,
+          success: function () {
+            Swal.fire('Updated', 'Item updated successfully.', 'success');
+            $('#itemModal').modal('hide');
+            // Reset and reload from first page
+            currentPage = 1;
+            allLoaded = false;
+            fetchItems(currentPage);
+          },
+          error: function (err) {
+            console.error(err);
+            Swal.fire('Error', 'Failed to update item.', 'error');
+          }
+        });
+      });
+
+      // ==================== DELETE ITEM (DELETE) ====================
+      // Handle delete button click - soft delete item
+      $('#itable tbody').on('click', '.deleteBtn', function (e) {
+        e.preventDefault();
+        const id = $(this).data('id');
+        Swal.fire({
+          title: 'Are you sure?',
+          text: 'This item will be deleted.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, delete it!'
+        }).then(result => {
+          if (result.isConfirmed) {
+            $.ajax({
+              url: `${baseUrl}/${id}`,
+              method: 'DELETE',
+              success: function () {
+                Swal.fire('Deleted!', 'Item has been deleted.', 'success');
+                // Reset and reload from first page
+                currentPage = 1;
+                allLoaded = false;
+                fetchItems(currentPage);
+              },
+              error: function (err) {
+                console.error(err);
+                Swal.fire('Error', 'Failed to delete item.', 'error');
+              }
+            });
+          }
+        });
+      });
+    });
+    
+    // ==================== RESTORE ITEM (PATCH) ====================
+    // Handle restore button click - restore soft-deleted item
+    $('#itable tbody').on('click', '.restoreBtn', function (e) {
+      e.preventDefault();
+      const id = $(this).data('id');
+      Swal.fire({
+        title: 'Restore Item?',
+        text: 'Do you want to restore this item?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, restore it!'
+      }).then(result => {
+        if (result.isConfirmed) {
+          $.ajax({
+            url: `http://localhost:3000/api/item/admin/restore/${id}`,
+            method: 'PATCH',
+            success: function () {
+              Swal.fire('Restored!', 'Item has been restored.', 'success');
+              // Reset and reload from first page
+              currentPage = 1;
+              allLoaded = false;
+              fetchItems(currentPage);
+            },
+            error: function (err) {
+              console.error(err);
+              Swal.fire('Error', 'Failed to restore item.', 'error');
+            }
+          });
+        }
+      });
+    });
+
+  </script>
+</body>
+</html>

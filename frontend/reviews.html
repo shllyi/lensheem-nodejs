@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Reviews</title>
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/plugins.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/responsive.css">
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background-color: #fff;
+      color: #333;
+      line-height: 1.6;
+      padding-top: 80px;
+    }
+    .pageWrapper {
+      min-height: 100vh;
+    }
+    .reviews-section {
+      padding: 80px 0;
+      background: #fff;
+    }
+    .reviews-header {
+      margin-bottom: 60px;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 30px;
+      background: #fff;
+      color: #000;
+      border-radius: 0;
+    }
+    .reviews-header h1 {
+      font-size: 2.2rem;
+      font-weight: 300;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+    .reviews-header p {
+      font-size: 1.1rem;
+      color: #666;
+      font-weight: 300;
+    }
+    .review-card {
+      background: #fff;
+      border: 1px solid #f0f0f0;
+      border-radius: 0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 2rem;
+      transition: all 0.3s ease;
+    }
+    .review-card:hover {
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      border-color: #333;
+      transform: none;
+    }
+    .review-card .card-body {
+      padding: 2.5rem;
+    }
+    .item-image {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 0;
+      border: 1px solid #f0f0f0;
+      transition: transform 0.3s ease;
+    }
+    .review-card:hover .item-image {
+      transform: scale(1.05);
+    }
+    .rating-stars {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 1rem;
+    }
+    .star {
+      font-size: 1.2rem;
+      color: #000;
+      opacity: 0.2;
+    }
+    .star:not(.empty) {
+      opacity: 1;
+      color: #000;
+    }
+    .star.empty {
+      color: #dee2e6;
+      opacity: 1;
+    }
+    .review-text {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 0;
+      padding: 1rem;
+      margin: 0.5rem 0 1rem 0;
+      font-style: italic;
+      max-height: 100px;
+      overflow-y: auto;
+      color: #333;
+    }
+    .review-images {
+      display: flex;
+      gap: 10px;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .review-image {
+      width: 70px;
+      height: 70px;
+      object-fit: cover;
+      border-radius: 0;
+      border: 1px solid #f0f0f0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .review-image:hover {
+      transform: scale(1.1);
+      border-color: #333;
+    }
+    .back-btn {
+      background: #333;
+      border: 1px solid #333;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0;
+      color: white;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 400;
+    }
+    .back-btn:hover {
+      background: white;
+      color: #333;
+      border-color: #333;
+      text-decoration: none;
+    }
+    .loading {
+      text-align: center;
+      padding: 4rem;
+      color: #666;
+    }
+    .loading i {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    .error {
+      background: #f8f9fa;
+      color: #333;
+      padding: 1.5rem;
+      border-radius: 0;
+      margin: 1rem 0;
+      border: 1px solid #ddd;
+    }
+    .no-reviews {
+      text-align: center;
+      padding: 4rem;
+      color: #666;
+    }
+    .view-details-btn {
+      background: #333;
+      border: 1px solid #333;
+      color: white;
+      padding: 0.4rem 1rem;
+      border-radius: 0;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      font-weight: 400;
+      letter-spacing: 1px;
+    }
+    .view-details-btn:hover {
+      background: white;
+      color: #333;
+      border-color: #333;
+      text-decoration: none;
+    }
+    /* Modal styling for image preview */
+    .modal-content {
+      border-radius: 0;
+    }
+    .modal-header {
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .modal-title {
+      font-size: 1.2rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #333;
+    }
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .reviews-header {
+        padding-bottom: 20px;
+      }
+      .review-card .card-body {
+        padding: 1.5rem;
+      }
+      .item-image {
+        width: 70px;
+        height: 70px;
+      }
+      .review-image {
+        width: 50px;
+        height: 50px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="header"></div>
+  <div class="pageWrapper">
+    <div class="reviews-section">
+      <div class="container">
+        <!-- Back Button -->
+        <div class="mb-4">
+          <a href="javascript:history.back()" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back
+          </a>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+          <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+          <p>Loading your reviews...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="error" style="display: none;">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span id="errorMessage"></span>
+        </div>
+
+        <!-- Reviews Content -->
+        <div id="reviewsContent" style="display: none;">
+          <!-- Reviews Header -->
+          <div class="reviews-header">
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <h1 class="mb-2">
+                  <i class="fas fa-star me-3"></i>
+                  My Reviews
+                </h1>
+                <p class="mb-0">
+                  <i class="fas fa-list me-2"></i>
+                  <span id="reviewCount">0</span> reviews submitted
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reviews List -->
+          <div id="reviewsList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Modal -->
+  <div class="modal fade" id="imageModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Review Image</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img id="modalImage" src="" class="img-fluid" alt="Review Image">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/vendor/jquery-3.3.1.min.js"></script>
+  <script src="assets/js/bootstrap.min.js"></script>
+  <script>
+    // Load header
+    $(document).ready(function() {
+      $('#header').load('header.html', function() {
+        // Header loaded successfully
+        console.log('Header loaded');
+      });
+    });
+    // Check if user is logged in
+    const token = localStorage.getItem('token');
+    const customerId = localStorage.getItem('customer_id');
+    
+    if (!token || !customerId) {
+      console.log('User not logged in, redirecting to login page');
+      alert('Please log in to view your reviews.');
+      window.location.href = 'login.html';
+    } else {
+      loadCustomerReviews(customerId);
+    }
+
+    function loadCustomerReviews(customerId) {
+      console.log('Loading reviews for customer:', customerId);
+      $.get(`/api/reviews/customer/${customerId}`, function(response) {
+        console.log('API Response:', response);
+        if (response.success) {
+          displayReviews(response.data);
+        } else {
+          showError(response.message || 'Failed to load reviews');
+        }
+      }).fail(function(xhr, status, error) {
+        console.error('API Error:', {xhr, status, error});
+        console.error('Response text:', xhr.responseText);
+        showError('Failed to load reviews. Please try again.');
+      });
+    }
+
+    function displayReviews(reviews) {
+      // Hide loading, show content
+      $('#loading').hide();
+      $('#reviewsContent').show();
+
+      // Update review count
+      $('#reviewCount').text(reviews.length);
+
+      if (reviews.length === 0) {
+        $('#reviewsList').html(`
+          <div class="no-reviews">
+            <i class="fas fa-star fa-3x mb-3 text-muted"></i>
+            <h4>No Reviews Yet</h4>
+            <p>You haven't submitted any reviews yet.</p>
+            <a href="orders.html" class="btn btn-primary">View Your Orders</a>
+          </div>
+        `);
+        return;
+      }
+
+      // Display reviews
+      const reviewsHtml = reviews.map(review => {
+        console.log('Review data:', review); // Debug log
+        
+        const starsHtml = generateStars(review.rating);
+        const reviewText = review.review_text && review.review_text.trim() 
+          ? review.review_text 
+          : '<em class="text-muted">No review text provided</em>';
+        
+        const imagesHtml = review.images && review.images.length > 0 
+          ? review.images.map(img => `
+              <img src="/uploads/${img}" class="review-image" onclick="openImageModal('${img}')" alt="Review Image">
+            `).join('')
+          : '<span class="text-muted">No images</span>';
+
+        const itemImagePath = review.item_image ? `/uploads/${review.item_image}` : '/assets/images/default.jpg';
+        console.log('Item image path:', itemImagePath); // Debug log
+
+        return `
+          <div class="review-card">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-2">
+                  <img src="${itemImagePath}" class="item-image" alt="${review.item_name || 'Item'}" onerror="this.src='/assets/images/default.jpg'">
+                </div>
+                <div class="col-md-8">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <h6 class="mb-1">${review.item_name || 'Item Name Not Available'}</h6>
+                      <div class="rating-stars">${starsHtml}</div>
+                      <small class="text-muted">Order #${review.orderinfo_id} • ${formatDate(review.created_at)}</small>
+                    </div>
+                    <a href="review.html?id=${review.review_id}" class="view-details-btn">
+                      <i class="fas fa-eye me-1"></i>View Details
+                    </a>
+                  </div>
+                  
+                  <div class="review-text">${reviewText}</div>
+                  
+                  <div class="review-images">
+                    ${imagesHtml}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      $('#reviewsList').html(reviewsHtml);
+    }
+
+    function generateStars(rating) {
+      let starsHtml = '';
+      for (let i = 1; i <= 5; i++) {
+        if (i <= rating) {
+          starsHtml += '<i class="fas fa-star star"></i>';
+        } else {
+          starsHtml += '<i class="fas fa-star star empty"></i>';
+        }
+      }
+      return starsHtml;
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return 'N/A';
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+
+    function showError(message) {
+      $('#loading').hide();
+      $('#errorMessage').text(message);
+      $('#error').show();
+    }
+
+    function openImageModal(imagePath) {
+      $('#modalImage').attr('src', `/uploads/${imagePath}`);
+      $('#imageModal').modal('show');
+    }
+  </script>
+</body>
+</html> 
