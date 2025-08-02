@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Reviews</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+  <!-- JS -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    .loading-spinner {
+      text-align: center;
+      padding: 20px;
+      display: none;
+    }
+    .table-container {
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .search-container {
+      margin-bottom: 20px;
+    }
+    .export-buttons {
+      margin-bottom: 20px;
+    }
+    .table-row {
+      transition: opacity 0.3s ease;
+    }
+    .table-row.deleted {
+      opacity: 0.6;
+      background-color: #f8f9fa;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="header"></div>
+
+  <div class="container mt-4">
+    <h2 class="mb-3">Reviews Management</h2>
+    
+    <!-- Search and Export Controls -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="search-container">
+          <div class="input-group">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search reviews by text, item name, customer name, email, or order ID...">
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary" type="button" id="searchBtn">
+                <i class="fas fa-search"></i>
+              </button>
+              <button class="btn btn-outline-danger" type="button" id="clearSearchBtn" style="display: none;">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+          <small class="text-muted">Search in review text, item names, customer names, emails, and order IDs</small>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="export-buttons text-right">
+          <button class="btn btn-danger btn-sm" id="exportPdf">
+            <i class="fas fa-file-pdf"></i> PDF
+          </button>
+          <button class="btn btn-success btn-sm" id="exportExcel">
+            <i class="fas fa-file-excel"></i> Excel
+          </button>
+          <button class="btn btn-info btn-sm" id="exportPrint">
+            <i class="fas fa-print"></i> Print
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Search Results Info -->
+    <div id="searchInfo" class="alert alert-info" style="display: none;">
+      <i class="fas fa-info-circle"></i>
+      <span id="searchInfoText"></span>
+    </div>
+
+    <!-- Table Container -->
+    <div class="table-container">
+      <table class="table table-striped table-hover">
+        <thead class="thead-dark sticky-top">
+          <tr>
+            <th>Review ID</th>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Item</th>
+            <th>Rating</th>
+            <th>Review Text</th>
+            <th>Images</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="reviewsTableBody"></tbody>
+      </table>
+      
+      <!-- Loading Spinner -->
+      <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <p class="mt-2">Loading more reviews...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Review Modal -->
+  <div class="modal fade" id="reviewModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Review Details</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h5>Customer Information</h5>
+              <p><strong>Name:</strong> <span id="modalCustomerName"></span></p>
+              <p><strong>Email:</strong> <span id="modalCustomerEmail"></span></p>
+              <p><strong>Order ID:</strong> <span id="modalOrderId"></span></p>
+            </div>
+            <div class="col-md-6">
+              <h5>Item Information</h5>
+              <p><strong>Item:</strong> <span id="modalItemName"></span></p>
+              <div id="modalItemImage"></div>
+            </div>
+          </div>
+          <hr>
+          <div class="row">
+            <div class="col-md-12">
+              <h5>Review Details</h5>
+              <p><strong>Rating:</strong> <span id="modalRating"></span></p>
+              <p><strong>Review Text:</strong></p>
+              <div id="modalReviewText" class="border p-3 bg-light"></div>
+              <p><strong>Review Images:</strong></p>
+              <div id="modalReviewImages" class="mt-2"></div>
+              <p><strong>Date:</strong> <span id="modalDate"></span></p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      // ========== AUTHENTICATION CHECK ========== //
+      const token = localStorage.getItem('token');
+      const role = localStorage.getItem('role') || localStorage.getItem('userRole');
+      
+      // Check if user is logged in and is admin
+      if (!token) {
+        alert('Please log in to access this page.');
+        window.location.href = '/login.html';
+        return;
+      }
+      
+      if (!role || role.toLowerCase() !== 'admin') {
+        alert('Admin access required.');
+        window.location.href = '/index.html';
+        return;
+      }
+
+      $('#header').load('/header_admin.html', function () {
+          if (typeof renderCart === 'function') {
+            renderCart();
+          }
+        });
+
+      const baseUrl = 'http://localhost:3000/api/reviews/admin';
+      const imageBaseUrl = 'http://localhost:3000/uploads/';
+      
+      // Infinite scroll variables
+      let currentPage = 1;
+      let isLoading = false;
+      let hasMoreData = true;
+      let searchTerm = '';
+      const pageSize = 25;
+
+      // Function to render star rating
+      function renderStars(rating) {
+        let stars = '';
+        for (let i = 1; i <= 5; i++) {
+          if (i <= rating) {
+            stars += '<i class="fas fa-star text-warning"></i>';
+          } else {
+            stars += '<i class="far fa-star text-muted"></i>';
+          }
+        }
+        return stars;
+      }
+
+      // Function to truncate text
+      function truncateText(text, maxLength = 100) {
+        if (!text) return 'No review text';
+        if (text.length <= maxLength) return text;
+        return text.substring(0, maxLength) + '...';
+      }
+
+      // Function to format date
+      function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+      }
+
+      // Function to render a single review row
+      function renderReviewRow(review) {
+        const isDeleted = review.deleted_at ? 'deleted' : '';
+        const customerName = review.customer_name || 'N/A';
+        const itemName = review.item_name || 'N/A';
+        const reviewText = truncateText(review.review_text);
+        const formattedDate = formatDate(review.created_at);
+        
+        let imagesHtml = '<span class="text-muted">No Images</span>';
+        if (review.review_images && review.review_images.length > 0) {
+          const unique = [...new Set(review.review_images)];
+          imagesHtml = unique.slice(0, 3).map(img => 
+            `<img src="${imageBaseUrl}${img}" width="30" height="30" class="mr-1 mb-1 rounded" style="object-fit: cover;"/>`
+          ).join('');
+        }
+
+        let actionButtons = '';
+        if (review.deleted_at) {
+          actionButtons = `
+            <a href="#" class="restoreBtn" data-id="${review.review_id}">
+              <i class="fas fa-undo text-success" style="font-size: 18px;" title="Restore Review"></i>
+            </a>`;
+        } else {
+          actionButtons = `
+            <a href="#" class="viewBtn" data-id="${review.review_id}">
+              <i class="fas fa-eye text-info" style="font-size: 18px;" title="View Details"></i>
+            </a>
+            <a href="#" class="deleteBtn ml-2" data-id="${review.review_id}">
+              <i class="fas fa-trash-alt text-danger" style="font-size: 18px;" title="Delete Review"></i>
+            </a>`;
+        }
+
+        return `
+          <tr class="table-row ${isDeleted}" data-id="${review.review_id}">
+            <td>${review.review_id}</td>
+            <td>${review.orderinfo_id}</td>
+            <td>${customerName}</td>
+            <td>${itemName}</td>
+            <td>${renderStars(review.rating)}</td>
+            <td>${reviewText}</td>
+            <td>${imagesHtml}</td>
+            <td>${formattedDate}</td>
+            <td>${actionButtons}</td>
+          </tr>
+        `;
+      }
+
+      // Function to load reviews
+      function loadReviews(append = false) {
+        if (isLoading || (!append && !hasMoreData)) return;
+        
+        isLoading = true;
+        $('#loadingSpinner').show();
+
+        const params = new URLSearchParams({
+          page: currentPage,
+          limit: pageSize
+        });
+
+        if (searchTerm) {
+          params.append('search', searchTerm);
+        }
+
+        $.ajax({
+          url: `${baseUrl}?${params.toString()}`,
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer ' + token
+          },
+          success: function (res) {
+            if (res.data && res.data.length > 0) {
+              const rowsHtml = res.data.map(review => renderReviewRow(review)).join('');
+              
+              if (append) {
+                $('#reviewsTableBody').append(rowsHtml);
+              } else {
+                $('#reviewsTableBody').html(rowsHtml);
+              }
+              
+              // Use pagination metadata from backend
+              if (res.pagination) {
+                hasMoreData = res.pagination.hasMore;
+                currentPage = res.pagination.currentPage + 1;
+                totalSearchResults = res.pagination.totalCount;
+              } else {
+                // Fallback for backward compatibility
+                hasMoreData = res.data.length === pageSize;
+                currentPage++;
+                totalSearchResults = res.data.length;
+              }
+              
+              // Update search info
+              updateSearchInfo();
+            } else {
+              hasMoreData = false;
+              totalSearchResults = 0;
+              updateSearchInfo();
+              if (!append) {
+                $('#reviewsTableBody').html('<tr><td colspan="9" class="text-center">No reviews found</td></tr>');
+              }
+            }
+          },
+          error: function (xhr, status, error) {
+            console.error('Error loading reviews:', error);
+            Swal.fire('Error', 'Failed to load reviews.', 'error');
+            if (!append) {
+              $('#reviewsTableBody').html('<tr><td colspan="9" class="text-center text-danger">Error loading reviews</td></tr>');
+            }
+          },
+          complete: function () {
+            isLoading = false;
+            $('#loadingSpinner').hide();
+          }
+        });
+      }
+
+      // Function to reset pagination
+      function resetPagination() {
+        currentPage = 1;
+        hasMoreData = true;
+        $('#reviewsTableBody').empty();
+      }
+
+      // Initial load
+      loadReviews();
+
+      // Infinite scroll handler
+      $('.table-container').on('scroll', function() {
+        const container = $(this);
+        const scrollTop = container.scrollTop();
+        const scrollHeight = container[0].scrollHeight;
+        const clientHeight = container.height();
+        
+        // Load more when user scrolls to bottom (with 100px threshold)
+        if (scrollTop + clientHeight >= scrollHeight - 100 && hasMoreData && !isLoading) {
+          loadReviews(true);
+        }
+      });
+
+      // Search functionality
+      let searchTimeout;
+      let totalSearchResults = 0;
+      
+      function updateSearchInfo() {
+        const searchInfo = $('#searchInfo');
+        const searchInfoText = $('#searchInfoText');
+        const clearSearchBtn = $('#clearSearchBtn');
+        
+        if (searchTerm) {
+          searchInfo.show();
+          searchInfoText.text(`Searching for "${searchTerm}" - Found ${totalSearchResults} results`);
+          clearSearchBtn.show();
+        } else {
+          searchInfo.hide();
+          clearSearchBtn.hide();
+        }
+      }
+      
+      $('#searchInput').on('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function() {
+          searchTerm = $('#searchInput').val().trim();
+          resetPagination();
+          loadReviews();
+        }, 500);
+      });
+
+      $('#searchBtn').on('click', function() {
+        searchTerm = $('#searchInput').val().trim();
+        resetPagination();
+        loadReviews();
+      });
+      
+      $('#clearSearchBtn').on('click', function() {
+        $('#searchInput').val('');
+        searchTerm = '';
+        resetPagination();
+        loadReviews();
+        updateSearchInfo();
+      });
+
+      // Export functionality
+      $('#exportPdf').on('click', function() {
+        // Implement PDF export
+        Swal.fire('Info', 'PDF export functionality to be implemented', 'info');
+      });
+
+      $('#exportExcel').on('click', function() {
+        // Implement Excel export
+        Swal.fire('Info', 'Excel export functionality to be implemented', 'info');
+      });
+
+      $('#exportPrint').on('click', function() {
+        window.print();
+      });
+
+      // Event delegation for dynamic content
+      $(document).on('click', '.viewBtn', function (e) {
+        e.preventDefault();
+        const id = $(this).data('id');
+
+        $.ajax({
+          url: `${baseUrl}/${id}`,
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer ' + token
+          },
+          success: function (res) {
+            const review = res.result[0];
+            
+            $('#modalCustomerName').text(review.customer_name || 'N/A');
+            $('#modalCustomerEmail').text(review.customer_email || 'N/A');
+            $('#modalOrderId').text(review.orderinfo_id);
+            $('#modalItemName').text(review.item_name || 'N/A');
+            
+            if (review.item_image) {
+              $('#modalItemImage').html(`<img src="${imageBaseUrl}${review.item_image}" width="100" class="img-thumbnail" />`);
+            } else {
+              $('#modalItemImage').html('<p class="text-muted">No item image</p>');
+            }
+            
+            $('#modalRating').html(renderStars(review.rating) + ` (${review.rating}/5)`);
+            $('#modalReviewText').text(review.review_text || 'No review text provided');
+            
+            if (review.review_images && review.review_images.length > 0) {
+              const images = [...new Set(review.review_images)];
+              const imageHtml = images.map(img => `<img src="${imageBaseUrl}${img}" width="150" class="mr-2 mb-2 img-thumbnail" />`).join('');
+              $('#modalReviewImages').html(imageHtml);
+            } else {
+              $('#modalReviewImages').html('<p class="text-muted">No review images</p>');
+            }
+            
+            $('#modalDate').text(formatDate(review.created_at));
+            $('#reviewModal').modal('show');
+          },
+          error: function (xhr, status, error) {
+            console.error('Error fetching review details:', error);
+            Swal.fire('Error', 'Failed to fetch review details.', 'error');
+          }
+        });
+      });
+
+      $(document).on('click', '.deleteBtn', function (e) {
+        e.preventDefault();
+        const id = $(this).data('id');
+        Swal.fire({
+          title: 'Are you sure?',
+          text: 'This review will be deleted.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, delete it!',
+          cancelButtonText: 'Cancel'
+        }).then(result => {
+          if (result.isConfirmed) {
+            $.ajax({
+              url: `${baseUrl}/${id}`,
+              method: 'DELETE',
+              headers: {
+                'Authorization': 'Bearer ' + token
+              },
+              success: function () {
+                Swal.fire('Deleted!', 'Review has been deleted.', 'success');
+                resetPagination();
+                loadReviews();
+              },
+              error: function (xhr, status, error) {
+                console.error('Error deleting review:', error);
+                Swal.fire('Error', 'Failed to delete review.', 'error');
+              }
+            });
+          }
+        });
+      });
+
+      $(document).on('click', '.restoreBtn', function (e) {
+        e.preventDefault();
+        const id = $(this).data('id');
+        Swal.fire({
+          title: 'Restore Review?',
+          text: 'Do you want to restore this review?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, restore it!',
+          cancelButtonText: 'Cancel'
+        }).then(result => {
+          if (result.isConfirmed) {
+            $.ajax({
+              url: `${baseUrl}/restore/${id}`,
+              method: 'PATCH',
+              headers: {
+                'Authorization': 'Bearer ' + token
+              },
+              success: function () {
+                Swal.fire('Restored!', 'Review has been restored.', 'success');
+                resetPagination();
+                loadReviews();
+              },
+              error: function (xhr, status, error) {
+                console.error('Error restoring review:', error);
+                Swal.fire('Error', 'Failed to restore review.', 'error');
+              }
+            });
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

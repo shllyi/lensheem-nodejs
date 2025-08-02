@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Lensheem</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+
+
+        /* Top Header Bar */
+        .top-header {
+            background: white;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 0 0 15px 15px;
+        }
+
+        .brand-logo {
+            background: #f8f9fa;
+            color: #2c3e50;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .brand-logo:hover {
+            background: #e9ecef;
+        }
+
+        .main-nav {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-item {
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #6c757d;
+            font-weight: 500;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-item:hover {
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .nav-item.active {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .nav-item i {
+            font-size: 14px;
+        }
+
+        .utility-icons {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .utility-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #6c757d;
+        }
+
+        .utility-icon:hover {
+            background: #e9ecef;
+            color: #2c3e50;
+        }
+
+        .utility-icon i {
+            font-size: 16px;
+        }
+
+        /* Main Content Area */
+
+
+        .notification-badge {
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            margin-left: auto;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .content-header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .content-tabs {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .content-tab {
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .content-tab.active {
+            background: #ffc107;
+            color: white;
+        }
+
+        .progress-section {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .progress-item {
+            flex: 1;
+        }
+
+        .progress-label {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+            color: white;
+        }
+
+        .action-btn.secondary {
+            background: #f8f9fa;
+            color: #6c757d;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-nav {
+                display: none;
+            }
+
+            .admin-sidebar {
+                width: 70px;
+                padding: 15px 10px;
+            }
+
+            .admin-logo-text,
+            .sidebar-nav-item-text,
+            .nav-section-title {
+                display: none;
+            }
+
+            .admin-logo {
+                justify-content: center;
+                margin-bottom: 30px;
+            }
+
+            .sidebar-nav-item {
+                justify-content: center;
+                padding: 15px 10px;
+            }
+        }
+
+        /* Additional Animations */
+        .sidebar-nav-item {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .sidebar-nav-item:hover::before {
+            left: 100%;
+        }
+    </style>
+</head>
+<body>
+        <!-- Top Header Bar -->
+        <header class="top-header">
+            <div class="brand-logo">Lensheem</div>
+            
+            <nav class="main-nav">
+                <a href="index-admin.html" class="nav-item" data-page="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+                <a href="user.html" class="nav-item" data-page="users">
+                    <i class="fas fa-users"></i>
+                    Users
+                </a>
+                <a href="admin-orders.html" class="nav-item" data-page="orders">
+                    <i class="fas fa-shopping-cart"></i>
+                    Orders
+                </a>
+                <a href="admin-reviews.html" class="nav-item" data-page="reviews">
+                    <i class="fas fa-star"></i>
+                    Reviews
+                </a>
+            </nav>
+
+            <div class="utility-icons">
+                <div class="utility-icon" onclick="toggleSearch()">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="utility-icon" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="utility-icon" onclick="toggleProfileMenu()">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </header>
+
+
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        const API_BASE_URL = '/api';
+
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            setActiveNavItem();
+        });
+
+        // Check if user is authenticated and is admin
+        async function checkAuth() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    redirectToLogin();
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE_URL}/auth/admin-check`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    localStorage.removeItem('token');
+                    redirectToLogin();
+                    return;
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    loadAdminProfile();
+                } else {
+                    redirectToLogin();
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                redirectToLogin();
+            }
+        }
+
+        // Set active navigation item based on current page
+        function setActiveNavItem() {
+            const currentPage = window.location.pathname.split('/').pop();
+            const navItems = document.querySelectorAll('.nav-item, .sidebar-nav-item');
+            
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href') === currentPage) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        // Redirect to login page
+        function redirectToLogin() {
+            window.location.href = '/login.html';
+        }
+
+        // Load admin profile information
+        async function loadAdminProfile() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/auth/admin-profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load profile');
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    currentUser = data.profile;
+                }
+            } catch (error) {
+                console.error('Failed to load profile:', error);
+            }
+        }
+
+        // Toggle search functionality
+        function toggleSearch() {
+            showNotification('Search functionality coming soon!', 'info');
+        }
+
+        // Toggle notifications
+        function toggleNotifications() {
+            showNotification('Notifications panel coming soon!', 'info');
+        }
+
+        // Toggle profile menu
+        function toggleProfileMenu() {
+            showNotification('Profile menu coming soon!', 'info');
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 10000;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+                ${type === 'error' ? 'background: #e74c3c;' : 
+                  type === 'success' ? 'background: #00d4aa;' : 
+                  'background: #ffc107;'}
+            `;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Add click handlers for navigation items
+        document.querySelectorAll('.nav-item, .sidebar-nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                // Remove active class from all items
+                document.querySelectorAll('.nav-item, .sidebar-nav-item').forEach(nav => {
+                    nav.classList.remove('active');
+                });
+                // Add active class to clicked item
+                this.classList.add('active');
+            });
+        });
+
+        // Add click handlers for content tabs
+        document.querySelectorAll('.content-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.content-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
+

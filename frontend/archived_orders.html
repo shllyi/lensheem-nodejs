@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archived Orders - Lensheem</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.10.22/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/buttons/1.6.5/css/buttons.bootstrap4.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.16.1/sweetalert2.css" rel="stylesheet">
+
+  <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .admin-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Top Header Bar */
+        .top-header {
+            background: white;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border-bottom: 2px solid #f8f9fa;
+        }
+
+        .brand-logo {
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .brand-logo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255,193,7,0.3);
+        }
+
+        .main-nav {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-item {
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #6c757d;
+            font-weight: 500;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-item:hover {
+            background: #fff9c4;
+            color: #333;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+            color: white;
+        }
+
+        .nav-item i {
+            font-size: 14px;
+        }
+
+        .utility-icons {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .utility-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #6c757d;
+        }
+
+        .utility-icon:hover {
+            background: #fff9c4;
+            color: #333;
+        }
+
+        .utility-icon i {
+            font-size: 16px;
+        }
+
+        /* Main Content Area */
+        .admin-main {
+            flex: 1;
+            background: #fafafa;
+            display: flex;
+        }
+
+        /* Sidebar Styles */
+        .admin-sidebar {
+            width: 280px;
+            background: white;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.05);
+            border-right: 1px solid #f0f0f0;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            padding: 15px;
+            background: linear-gradient(135deg, #fff9c4, #fff59d);
+            border-radius: 15px;
+            border: 1px solid #ffe082;
+        }
+
+        .admin-logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255,193,7,0.3);
+        }
+
+        .admin-logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .admin-nav {
+            flex: 1;
+        }
+
+        .nav-section {
+            margin-bottom: 30px;
+        }
+
+        .nav-section-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #999;
+            margin-bottom: 15px;
+            padding-left: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+            text-decoration: none;
+        }
+
+        .sidebar-nav-item:hover {
+            background: #fff9c4;
+            color: #333;
+            transform: translateX(5px);
+        }
+
+        .sidebar-nav-item.active {
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255,193,7,0.3);
+        }
+
+        .sidebar-nav-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .sidebar-nav-item-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        /* Orders Container */
+        .orders-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+            overflow: hidden;
+            border: 1px solid #f0f0f0;
+        }
+
+        .page-header {
+            padding: 30px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .analytics-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #f0f0f0;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .analytics-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+        }
+
+        .analytics-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255,193,7,0.15);
+            border-color: #ffc107;
+        }
+
+        .analytics-icon {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #ffc107;
+        }
+
+        .analytics-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .analytics-label {
+            font-size: 13px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #e9ecef;
+        }
+
+        .action-btn:hover {
+            background: #fff9c4;
+            color: #333;
+            border-color: #ffc107;
+            transform: translateY(-2px);
+        }
+
+        .action-btn.archived {
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+            color: white;
+            border: none;
+        }
+
+        .action-btn.archived:hover {
+            background: linear-gradient(135deg, #ff9800, #ffc107);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255,193,7,0.3);
+        }
+
+        /* Data Table */
+        .data-table-container {
+            padding: 0;
+            margin: 20px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .data-table thead th {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-table tbody td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f8f9fa;
+            font-size: 14px;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .data-table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background: #fff9c4;
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-action {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-view {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .btn-restore {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-restore:hover {
+            background: #1e7e34;
+            transform: translateY(-1px);
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        /* Status badges */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-shipped {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-delivered {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+            color: white;
+            padding: 20px 25px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close:hover {
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .order-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .order-section h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            font-weight: 600;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .value {
+            text-align: right;
+            color: #333;
+            font-size: 13px;
+        }
+
+        .order-items-section h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .items-table {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Infinite Scroll Loading */
+        .loading-spinner {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .loading-spinner i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .admin-sidebar {
+                display: none;
+            }
+            
+            .order-info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .analytics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+  </style>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.6.5/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.6.5/js/buttons.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.5/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.16.1/sweetalert2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- Top Header Bar -->
+        <header class="top-header">
+            <div class="brand-logo">Lensheem</div>
+            
+            <nav class="main-nav">
+                <a href="index-admin.html" class="nav-item">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+                <a href="user.html" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    Users
+                </a>
+                <a href="admin-orders.html" class="nav-item">
+                    <i class="fas fa-shopping-cart"></i>
+                    Orders
+                </a>
+                <a href="archived_orders.html" class="nav-item active">
+                    <i class="fas fa-archive"></i>
+                    Archived Orders
+                </a>
+                <a href="admin-reviews.html" class="nav-item">
+                    <i class="fas fa-star"></i>
+                    Reviews
+                </a>
+            </nav>
+
+            <div class="utility-icons">
+                <div class="utility-icon" onclick="toggleSearch()">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="utility-icon" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="utility-icon" onclick="toggleProfileMenu()">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <div class="admin-main">
+            <!-- Sidebar -->
+            <div class="admin-sidebar">
+                <div class="admin-logo">
+                    <div class="admin-logo-icon">A</div>
+                    <div class="admin-logo-text">AdminPanel</div>
+                </div>
+
+                <nav class="admin-nav">
+                    <div class="nav-section">
+                        <div class="nav-section-title">Quick Actions</div>
+                        <a href="index-admin.html" class="sidebar-nav-item">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span class="sidebar-nav-item-text">Dashboard</span>
+                        </a>
+                        <a href="user.html" class="sidebar-nav-item">
+                            <i class="fas fa-users"></i>
+                            <span class="sidebar-nav-item-text">People</span>
+                        </a>
+                        <a href="admin-orders.html" class="sidebar-nav-item">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="sidebar-nav-item-text">Orders</span>
+                        </a>
+                        <a href="archived_orders.html" class="sidebar-nav-item active">
+                            <i class="fas fa-archive"></i>
+                            <span class="sidebar-nav-item-text">Archived Orders</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-section">
+                        <div class="nav-section-title">Management</div>
+                        <a href="admin-reviews.html" class="sidebar-nav-item">
+                            <i class="fas fa-star"></i>
+                            <span class="sidebar-nav-item-text">Reviews</span>
+                        </a>
+                        <a href="admin-analytics.html" class="sidebar-nav-item">
+                            <i class="fas fa-chart-line"></i>
+                            <span class="sidebar-nav-item-text">Analytics</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-section">
+                        <div class="nav-section-title">System</div>
+                        <a href="admin-settings.html" class="sidebar-nav-item">
+                            <i class="fas fa-cog"></i>
+                            <span class="sidebar-nav-item-text">Settings</span>
+                        </a>
+                        <a href="admin-backup.html" class="sidebar-nav-item">
+                            <i class="fas fa-database"></i>
+                            <span class="sidebar-nav-item-text">Backup</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <div class="orders-container">
+                    <!-- Page Header -->
+                    <div class="page-header">
+                        <h1 class="page-title">Archived Orders Management</h1>
+                        
+                        <div class="analytics-grid">
+                            <div class="analytics-card">
+                                <div class="analytics-icon">📦</div>
+                                <div class="analytics-number" id="totalArchivedOrders">0</div>
+                                <div class="analytics-label">Total Archived</div>
+                            </div>
+                            <div class="analytics-card">
+                                <div class="analytics-icon">✅</div>
+                                <div class="analytics-number" id="deliveredArchived">0</div>
+                                <div class="analytics-label">Delivered</div>
+                            </div>
+                            <div class="analytics-card">
+                                <div class="analytics-icon">🚚</div>
+                                <div class="analytics-number" id="shippedArchived">0</div>
+                                <div class="analytics-label">Shipped</div>
+                            </div>
+                            <div class="analytics-card">
+                                <div class="analytics-icon">💰</div>
+                                <div class="analytics-number" id="totalArchivedRevenue">₱0</div>
+                                <div class="analytics-label">Revenue</div>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="window.location.href='admin-orders.html'">
+                                <i class="fas fa-clipboard-list"></i>
+                                Active Orders
+                            </button>
+                            <button class="action-btn" onclick="exportToPDF()">
+                                <i class="fas fa-download"></i>
+                                Export Report
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Data Table -->
+                    <div class="data-table-container">
+                        <table class="data-table" id="archivedTable">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Date Placed</th>
+                                    <th>Date Archived</th>
+                                    <th>Status</th>
+                                    <th>Shipping Region</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal" id="orderModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Order Details</h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="order-info-grid">
+                    <div class="order-section">
+                        <h4>Order Information</h4>
+                        <div class="info-row">
+                            <span class="label">Order ID:</span>
+                            <span class="value" id="modal-order-id"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Customer:</span>
+                            <span class="value" id="modal-customer-name"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Status:</span>
+                            <span class="value" id="modal-status"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Date Placed:</span>
+                            <span class="value" id="modal-date-placed"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Date Shipped:</span>
+                            <span class="value" id="modal-date-shipped"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Date Delivered:</span>
+                            <span class="value" id="modal-date-delivered"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Date Archived:</span>
+                            <span class="value" id="modal-date-archived"></span>
+                        </div>
+                    </div>
+                    <div class="order-section">
+                        <h4>Shipping Information</h4>
+                        <div class="info-row">
+                            <span class="label">Region:</span>
+                            <span class="value" id="modal-region"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Shipping Rate:</span>
+                            <span class="value" id="modal-shipping-rate"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Subtotal:</span>
+                            <span class="value" id="modal-subtotal"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Total:</span>
+                            <span class="value" id="modal-total"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-items-section">
+                    <h4>Order Items</h4>
+                    <div class="items-table" id="modal-items-table">
+                        <!-- Items will be populated here -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action btn-view" onclick="printOrder()">
+                    <i class="fas fa-print"></i> Print
+                </button>
+                <button class="btn-action btn-delete" onclick="closeModal()">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer"></div>
+
+<script>
+    $(document).ready(function() {
+        const API_BASE_URL = 'http://localhost:3000';
+        sessionStorage.setItem('tabRole', 'admin');
+
+        // Load footer
+        $('#footer').load('footer_admin.html', function (response, status, xhr) {
+            if (status === 'error') {
+                console.warn('Footer could not be loaded:', xhr.status, xhr.statusText);
+                $('#footer').html(`
+                    <footer class="bg-dark text-white text-center py-3 mt-5">
+                        <div class="container">
+                            <p>&copy; 2024 Admin Panel. All rights reserved.</p>
+                        </div>
+                    </footer>
+                `);
+            }
+        });
+
+        // Admin authentication check
+        $.ajax({
+            url: 'http://localhost:3000/api/auth/admin-check',
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + (localStorage.getItem('token') || ''),
+                'X-Tab-Context': 'admin'
+            },
+            success: function(res) {
+                console.log('✅ Admin verified:', res.user);
+                if (sessionStorage.getItem('tabRole') !== 'admin') {
+                    alert('⚠️ Security Alert: Please access orders through admin interface');
+                    logoutAdmin();
+                    return;
+                }
+                initializeArchivedOrders();
+            },
+            error: function(xhr) {
+                const defaultMsg = "Only admins can access this page.";
+                const message = xhr.responseJSON?.message || defaultMsg;
+                
+                if (xhr.status === 403 && message.includes('interface')) {
+                    alert('🔒 Admin account detected - redirecting to admin portal');
+                    window.location.href = '/home_admin.html';
+                } else if (xhr.status === 401) {
+                    alert('⌛ Session expired - please login again');
+                    logoutAdmin();
+                } else {
+                    alert(message);
+                    logoutAdmin();
+                }
+            }
+        });
+
+        function logoutAdmin() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('role');
+            sessionStorage.removeItem('tabRole');
+            window.location.href = '/login.html';
+        }
+
+        function initializeArchivedOrders() {
+            // Get archived orders data
+            let archivedOrdersData = JSON.parse(localStorage.getItem('archivedOrders') || '[]');
+            
+            // Add sample data if no archived orders exist
+            if (archivedOrdersData.length === 0) {
+                const sampleArchivedOrders = [
+                    {
+                        orderinfo_id: '31',
+                        customer_id: 'CUST001',
+                        date_placed: '2025-07-24T00:00:00.000Z',
+                        date_shipped: '2025-07-25T10:30:00.000Z',
+                        date_delivered: '2025-07-26T14:20:00.000Z',
+                        status: 'Delivered',
+                        region: 'Luzon (Outside Metro Manila)',
+                        rate: '150.00',
+                        items: [
+                            { item_name: 'Sample Product 1', quantity: 2, unit_price: 500.00 },
+                            { item_name: 'Sample Product 2', quantity: 1, unit_price: 750.00 }
+                        ],
+                        date_archived: '2025-08-02T14:35:00.000Z'
+                    },
+                    {
+                        orderinfo_id: '39',
+                        customer_id: 'CUST002',
+                        date_placed: '2025-07-26T00:00:00.000Z',
+                        date_shipped: '2025-07-27T09:15:00.000Z',
+                        date_delivered: null,
+                        status: 'Shipped',
+                        region: 'Metro Manila',
+                        rate: '100.00',
+                        items: [
+                            { item_name: 'Sample Product 3', quantity: 1, unit_price: 1200.00 }
+                        ],
+                        date_archived: '2025-08-02T14:32:00.000Z'
+                    }
+                ];
+                localStorage.setItem('archivedOrders', JSON.stringify(sampleArchivedOrders));
+                archivedOrdersData = sampleArchivedOrders;
+            }
+            
+            // Ensure proper data structure
+            archivedOrdersData = archivedOrdersData.map(order => ({
+                orderinfo_id: order.orderinfo_id || order.id || 'N/A',
+                customer_name: order.customer_name || order.customer_id || order.customer || 'N/A',
+                date_placed: order.date_placed || order.created_at || 'N/A',
+                date_archived: order.date_archived || order.archived_at || 'N/A',
+                status: order.status || 'Unknown',
+                region: order.region || order.shipping_region || 'N/A',
+                shipping_rate: order.shipping_rate || order.rate || 0,
+                items: order.items || [],
+                date_shipped: order.date_shipped || null,
+                date_delivered: order.date_delivered || null
+            }));
+
+            // Update analytics
+            updateAnalytics(archivedOrdersData);
+
+            // Initialize infinite scroll table
+            initializeInfiniteScrollTable(archivedOrdersData);
+        }
+
+        function updateAnalytics(data) {
+            const totalArchived = data.length;
+            const delivered = data.filter(order => order.status === 'Delivered').length;
+            const shipped = data.filter(order => order.status === 'Shipped').length;
+            
+            let totalRevenue = 0;
+            data.forEach(order => {
+                if (order.items && order.items.length > 0) {
+                    order.items.forEach(item => {
+                        totalRevenue += (parseInt(item.quantity || 0) * parseFloat(item.unit_price || 0));
+                    });
+                }
+                totalRevenue += parseFloat(order.shipping_rate || 0);
+            });
+
+            $('#totalArchivedOrders').text(totalArchived);
+            $('#deliveredArchived').text(delivered);
+            $('#shippedArchived').text(shipped);
+            $('#totalArchivedRevenue').text('₱' + totalRevenue.toFixed(2));
+        }
+
+        function initializeInfiniteScrollTable(data) {
+            const itemsPerPage = 10;
+            let currentPage = 0;
+            let allData = [...data];
+            let filteredData = [...data];
+            let isLoading = false;
+
+            function renderTable(dataToRender) {
+                const tbody = $('#archivedTable tbody');
+                tbody.empty();
+
+                dataToRender.forEach(order => {
+                    const row = `
+                        <tr>
+                            <td>${order.orderinfo_id}</td>
+                            <td>${order.customer_name}</td>
+                            <td>${formatDate(order.date_placed)}</td>
+                            <td>${formatDate(order.date_archived)}</td>
+                            <td><span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span></td>
+                            <td>${order.region}</td>
+                            <td>
+                                <div class="action-buttons-cell">
+                                    <button class="btn-action btn-view" onclick="viewOrder('${order.orderinfo_id}')">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    <button class="btn-action btn-restore" onclick="restoreOrder('${order.orderinfo_id}')">
+                                        <i class="fas fa-undo"></i> Restore
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.append(row);
+                });
+            }
+
+            function loadMoreData() {
+                if (isLoading) return;
+                
+                isLoading = true;
+                const startIndex = currentPage * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const pageData = filteredData.slice(startIndex, endIndex);
+                
+                if (pageData.length > 0) {
+                    const tbody = $('#archivedTable tbody');
+                    pageData.forEach(order => {
+                        const row = `
+                            <tr>
+                                <td>${order.orderinfo_id}</td>
+                                <td>${order.customer_name}</td>
+                                <td>${formatDate(order.date_placed)}</td>
+                                <td>${formatDate(order.date_archived)}</td>
+                                <td><span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span></td>
+                                <td>${order.region}</td>
+                                <td>
+                                    <div class="action-buttons-cell">
+                                        <button class="btn-action btn-view" onclick="viewOrder('${order.orderinfo_id}')">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                        <button class="btn-action btn-restore" onclick="restoreOrder('${order.orderinfo_id}')">
+                                            <i class="fas fa-undo"></i> Restore
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        tbody.append(row);
+                    });
+                    currentPage++;
+                }
+                
+                isLoading = false;
+            }
+
+            // Initial load
+            loadMoreData();
+
+            // Infinite scroll
+            $('.content-area').on('scroll', function() {
+                const scrollTop = $(this).scrollTop();
+                const scrollHeight = $(this)[0].scrollHeight;
+                const clientHeight = $(this).height();
+                
+                if (scrollTop + clientHeight >= scrollHeight - 100) {
+                    loadMoreData();
+                }
+            });
+
+            // Search functionality
+            function performSearch(searchTerm) {
+                filteredData = allData.filter(order => 
+                    order.orderinfo_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    order.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    order.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    order.region.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+                currentPage = 0;
+                $('#archivedTable tbody').empty();
+                loadMoreData();
+            }
+
+            // Add search input to the page
+            $('.page-header').append(`
+                <div style="margin-top: 20px;">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" id="searchInput" placeholder="Search archived orders..." 
+                               style="flex: 1; padding: 10px; border: 1px solid #e9ecef; border-radius: 8px; font-size: 14px;">
+                        <button onclick="performSearch($('#searchInput').val())" 
+                                style="padding: 10px 20px; background: linear-gradient(135deg, #ffc107, #ff9800); color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+            `);
+
+            // Make search function global
+            window.performSearch = performSearch;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+            } catch (error) {
+                return 'Invalid Date';
+            }
+        }
+
+        // Global functions
+        window.viewOrder = function(orderId) {
+            const archivedOrders = JSON.parse(localStorage.getItem('archivedOrders') || '[]');
+            const order = archivedOrders.find(o => o.orderinfo_id === orderId);
+            
+            if (order) {
+                showOrderModal(order);
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Order not found'
+                });
+            }
+        };
+
+        window.restoreOrder = function(orderId) {
+            Swal.fire({
+                title: 'Restore Order?',
+                text: 'This will move the order back to active orders.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#dc3545',
+                confirmButtonText: 'Yes, restore it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let archivedOrders = JSON.parse(localStorage.getItem('archivedOrders') || '[]');
+                    const orderIndex = archivedOrders.findIndex(o => o.orderinfo_id === orderId);
+                    
+                    if (orderIndex !== -1) {
+                        const restoredOrder = archivedOrders[orderIndex];
+                        delete restoredOrder.date_archived;
+                        
+                        // Remove from archived orders
+                        archivedOrders.splice(orderIndex, 1);
+                        localStorage.setItem('archivedOrders', JSON.stringify(archivedOrders));
+                        
+                        // Refresh the page to update the table
+                        location.reload();
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Restored!',
+                            text: 'The order has been restored successfully.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    }
+                }
+            });
+        };
+
+        window.showOrderModal = function(order) {
+            $('#modal-order-id').text(order.orderinfo_id);
+            $('#modal-customer-name').text(order.customer_name || order.customer_id);
+            $('#modal-status').html(`<span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span>`);
+            $('#modal-date-placed').text(formatDate(order.date_placed));
+            $('#modal-date-shipped').text(formatDate(order.date_shipped) || 'Not shipped');
+            $('#modal-date-delivered').text(formatDate(order.date_delivered) || 'Not delivered');
+            $('#modal-date-archived').text(formatDate(order.date_archived));
+            $('#modal-region').text(order.region);
+            $('#modal-shipping-rate').text('₱' + parseFloat(order.shipping_rate || order.rate || 0).toFixed(2));
+
+            let subtotal = 0;
+            let itemsHtml = '';
+            
+            if (order.items && order.items.length > 0) {
+                order.items.forEach(item => {
+                    const quantity = parseInt(item.quantity || 0);
+                    const unitPrice = parseFloat(item.unit_price || 0);
+                    const totalPrice = quantity * unitPrice;
+                    subtotal += totalPrice;
+                    
+                    itemsHtml += `
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
+                            <span>${item.item_name}</span>
+                            <span>${quantity} x ₱${unitPrice.toFixed(2)} = ₱${totalPrice.toFixed(2)}</span>
+                        </div>
+                    `;
+                });
+            } else {
+                itemsHtml = '<div style="text-align: center; color: #666; padding: 20px;">No items found</div>';
+            }
+
+            const total = subtotal + parseFloat(order.shipping_rate || order.rate || 0);
+            
+            $('#modal-subtotal').text('₱' + subtotal.toFixed(2));
+            $('#modal-total').text('₱' + total.toFixed(2));
+            $('#modal-items-table').html(itemsHtml);
+            
+            $('#orderModal').show();
+        };
+
+        window.closeModal = function() {
+            $('#orderModal').hide();
+        };
+
+        window.printOrder = function() {
+            window.print();
+        };
+
+        window.exportToPDF = function() {
+            const archivedOrders = JSON.parse(localStorage.getItem('archivedOrders') || '[]');
+            
+            const doc = new jsPDF();
+            doc.setFontSize(20);
+            doc.setTextColor(255, 193, 7);
+            doc.text('Lensheem - Archived Orders Report', 20, 20);
+
+            doc.setFontSize(12);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 30);
+
+            const tableData = archivedOrders.map(order => [
+                order.orderinfo_id,
+                order.customer_name || order.customer_id,
+                formatDate(order.date_placed),
+                formatDate(order.date_archived),
+                order.status,
+                order.region
+            ]);
+
+            doc.autoTable({
+                head: [['Order ID', 'Customer', 'Date Placed', 'Date Archived', 'Status', 'Region']],
+                body: tableData,
+                startY: 40,
+                styles: {
+                    fontSize: 10,
+                    cellPadding: 3
+                },
+                headStyles: {
+                    fillColor: [255, 193, 7],
+                    textColor: [255, 255, 255]
+                },
+                alternateRowStyles: {
+                    fillColor: [248, 249, 250]
+                }
+            });
+
+            doc.save('lensheem-archived-orders-report.pdf');
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'PDF Exported!',
+                text: 'Archived orders report has been downloaded.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        };
+
+        // Utility functions
+        window.toggleSearch = function() {
+            console.log('Search toggled');
+        };
+
+        window.toggleNotifications = function() {
+            console.log('Notifications toggled');
+        };
+
+        window.toggleProfileMenu = function() {
+            console.log('Profile menu toggled');
+        };
+
+        // Storage event listener
+        window.addEventListener('storage', function(event) {
+            if (event.key === 'token' && event.newValue === null) {
+                alert('🔐 Session ended in another tab');
+                logoutAdmin();
+            }
+            
+            if (event.key === 'role' && event.newValue !== 'admin') {
+                alert('⚡ Account type changed - redirecting...');
+                logoutAdmin();
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

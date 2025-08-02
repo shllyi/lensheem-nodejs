@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Search Results</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  
+  <!-- Bootstrap Icons & FontAwesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+  <style>
+    body {
+      text-align: center;
+    }
+
+    .product-card {
+      margin-bottom: 20px;
+    }
+
+    .carousel-item img,
+    .product-card img {
+      height: 200px;
+      object-fit: contain;
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 50%;
+    }
+
+    .category-btn.active {
+      background-color: #0d6efd;
+      color: white;
+    }
+
+    .category-btn {
+      margin-right: 5px;
+    }
+
+    .filter-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .input-group {
+      max-width: 300px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div id="header"></div>
+
+  <h2 class="text-center mb-4">Search Results for: <span id="search-term" class="text-primary"></span></h2>
+
+  <!-- Filter & Search -->
+  <div class="filter-container">
+    <div id="categoryButtons" class="d-flex flex-wrap justify-content-center gap-2"></div>
+
+    <div class="input-group">
+      <input type="text" id="searchInput" class="form-control" placeholder="Search...">
+      <button class="btn btn-outline-primary" id="searchBtn">Search</button>
+    </div>
+  </div>
+
+  <!-- Product Results -->
+  <div class="container">
+    <div class="row" id="searchResults"></div>
+  </div>
+
+  <script>
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    function loadCategories(selectedCategory = '') {
+      $.get('/api/category', function (res) {
+        if (res.success && Array.isArray(res.data)) {
+          const $container = $('#categoryButtons');
+          $container.html(`
+            <button class="btn btn-outline-primary category-btn ${selectedCategory === '' ? 'active' : ''}" data-id="">All</button>
+          `);
+          res.data.forEach(cat => {
+            const isActive = selectedCategory === cat.category_id ? 'active' : '';
+            $container.append(`
+              <button class="btn btn-outline-primary category-btn ${isActive}" data-id="${cat.category_id}">
+                ${cat.description}
+              </button>
+            `);
+          });
+        }
+      });
+    }
+
+    function loadSearchResults(term, categoryId = '') {
+      let url = `/api/item/search/${encodeURIComponent(term)}`;
+      if (categoryId) {
+        url += `?categoryId=${categoryId}`;
+      }
+
+      $.get(url, function (res) {
+        if (res.status === 'success' && res.data.length > 0) {
+          let html = '';
+          res.data.forEach(item => {
+            const images = item.images || [];
+            const imgTag = images.length > 0
+              ? `<img src="/uploads/${images[0]}" class="card-img-top" style="height:200px; object-fit:contain;">`
+              : '<div class="text-muted">No image</div>';
+
+            html += `
+              <div class="col-md-3">
+                <div class="card mb-4 product-card">
+                  ${imgTag}
+                  <div class="card-body">
+                    <h5 class="card-title">${item.item_name}</h5>
+                    <p class="card-text">₱${parseFloat(item.sell_price).toFixed(2)}</p>
+                    <button class="btn btn-primary add-to-cart-btn"
+                      data-id="${item.item_id}" data-name="${item.item_name}" data-price="${item.sell_price}">
+                      Add to Cart
+                    </button>
+                  </div>
+                </div>
+              </div>`;
+          });
+
+          $('#searchResults').html(html);
+        } else {
+          $('#searchResults').html('<p>No matching items found.</p>');
+        }
+      }).fail(() => {
+        $('#searchResults').html('<p>API Error loading results.</p>');
+      });
+    }
+
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      $('#cart-count').text(cart.length);
+    }
+
+    $(document).ready(function () {
+      const term = getQueryParam('term') || '';
+      const selectedCategory = getQueryParam('categoryId') || '';
+
+      $('#search-term').text(term);
+      $('#searchInput').val(term);
+
+      $('#header').load('/header.html', function () {
+        const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('userId');
+
+        if (token && userId) {
+          $('#login-link, #register-link').addClass('d-none');
+          $('#user-dropdown').removeClass('d-none');
+
+          $.get(`/api/users/customers/${userId}`, function (res) {
+            if (res.success && res.data) {
+              const data = res.data;
+              const fullName = `${data.fname || ''} ${data.lname || ''}`.trim();
+              $('#username').text(fullName || 'USER');
+              if (data.image_path) {
+                $('.profile-img').attr('src', `/${data.image_path}`);
+              }
+            }
+          });
+        } else {
+          $('#login-link, #register-link').removeClass('d-none');
+          $('#user-dropdown').addClass('d-none');
+        }
+
+        updateCartCount();
+      });
+
+      loadCategories(selectedCategory);
+      loadSearchResults(term, selectedCategory);
+
+      // ✅ Redirect to dashboard.html when category is clicked
+      $(document).on('click', '.category-btn', function () {
+        const categoryId = $(this).data('id');
+        const url = `/dashboard.html${categoryId ? `?categoryId=${categoryId}` : ''}`;
+        console.log("Redirecting to:", url); // Optional for debugging
+        window.location.href = url;
+      });
+
+      // Handle new search
+      $('#searchBtn').on('click', function () {
+        const keyword = $('#searchInput').val().trim();
+        if (keyword) {
+          window.location.href = `/search.html?term=${encodeURIComponent(keyword)}`;
+        }
+      });
+
+      // Add to cart
+      $(document).on('click', '.add-to-cart-btn', function () {
+        const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('userId');
+
+        if (!token || !userId) {
+          alert('You must be logged in first!');
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const card = $(this).closest('.product-card');
+        const imagePath = card.find('img').first().attr('src')?.replace('/uploads/', '') || 'default.jpg';
+
+        const product = {
+          id: $(this).data('id'),
+          name: $(this).data('name'),
+          price: $(this).data('price'),
+          image_path: imagePath,
+          quantity: 1
+        };
+
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const existingItem = cart.find(item => item.id === product.id);
+        if (existingItem) {
+          existingItem.quantity += 1;
+        } else {
+          cart.push(product);
+        }
+
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartCount();
+        alert('Item added to cart!');
+      });
+    });
+  </script>
+
+</body>
+</html>

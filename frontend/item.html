@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Items</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.6/css/all.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.5/css/buttons.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    .admin-items-wrapper {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 30px 20px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(60,60,60,0.08);
+    }
+    .section-header {
+      margin-bottom: 40px;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 20px;
+      text-align: center;
+    }
+    .section-header h2 {
+      font-size: 2.2rem;
+      font-weight: 300;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .section-header p {
+      color: #666;
+      font-size: 1.05em;
+      font-weight: 300;
+    }
+    .items-table-container {
+      overflow-x: auto;
+    }
+    #itable {
+      width: 100% !important;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-bottom: 0;
+    }
+    #itable thead th {
+      background: #f4f6f8;
+      color: #333;
+      font-weight: 500;
+      border-bottom: 2px solid #e0e0e0;
+      padding: 14px 10px;
+      font-size: 1rem;
+      position: relative;
+    }
+    
+    /* Sortable column styles */
+    .sortable {
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s;
+    }
+    
+    .sortable:hover {
+      background: #e8eaed !important;
+    }
+    
+    .sort-arrows {
+      display: inline-block;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    
+    .sort-arrows i {
+      display: block;
+      font-size: 10px;
+      line-height: 1;
+      color: #ccc;
+      transition: color 0.2s;
+    }
+    
+    .sort-arrows .sort-up {
+      margin-bottom: 2px;
+    }
+    
+    .sort-arrows .sort-down {
+      margin-top: 2px;
+    }
+    
+    /* Active sort indicators */
+    .sort-asc .sort-up,
+    .sort-desc .sort-down {
+      color: #2c3e50;
+      font-weight: bold;
+    }
+    
+    /* Search box styles */
+    #searchBox {
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    #searchBox:focus {
+      border-color: #2c3e50;
+      box-shadow: 0 0 0 0.1rem rgba(44,62,80,0.08);
+    }
+    
+    .input-group-text {
+      background: #f8f9fa;
+      border: 1px solid #d1d5db;
+      color: #6c757d;
+    }
+    #itable tbody td {
+      padding: 12px 10px;
+      vertical-align: middle;
+      font-size: 0.98rem;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    #itable tbody tr:last-child td {
+      border-bottom: none;
+    }
+    .btn-info, .btn-primary, .btn-success, .btn-secondary {
+      border-radius: 6px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      min-width: 100px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-info {
+      background: #2c3e50;
+      border: none;
+    }
+    .btn-info:hover {
+      background: #1a232b;
+    }
+    .btn-primary {
+      background: #2c3e50;
+      border: none;
+    }
+    .btn-primary:hover {
+      background: #1a232b;
+    }
+    .btn-success {
+      background: #218c5b;
+      border: none;
+    }
+    .btn-success:hover {
+      background: #176943;
+    }
+    .btn-secondary {
+      background: #e3e6ea;
+      color: #2c3e50;
+      border: none;
+    }
+    .btn-secondary:hover {
+      background: #cfd4da;
+      color: #222;
+    }
+    .editBtn i, .deleteBtn i, .restoreBtn i {
+      transition: transform 0.1s, color 0.2s;
+    }
+    .editBtn:hover i {
+      color: #0056b3 !important;
+      transform: scale(1.15);
+    }
+    .deleteBtn:hover i {
+      color: #c0392b !important;
+      transform: scale(1.15);
+    }
+    .restoreBtn:hover i {
+      color: #218c5b !important;
+      transform: scale(1.15);
+    }
+    #itable td img {
+      width: 100px;
+      height: auto;
+      object-fit: contain;
+      display: inline-block;
+      border-radius: 6px;
+      border: 1px solid #e3e6ea;
+      box-shadow: 0 1px 4px rgba(44,62,80,0.06);
+      margin: 2px 4px 2px 0;
+    }
+    /* Modal styling */
+    .modal-content {
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(44,62,80,0.12);
+      border: none;
+    }
+    .modal-header {
+      background: #f1f3f6;
+      border-bottom: 1px solid #e3e6ea;
+      border-radius: 14px 14px 0 0;
+    }
+    .modal-title {
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    .btn-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #888;
+      opacity: 0.7;
+      transition: color 0.2s;
+    }
+    .btn-close:hover {
+      color: #2c3e50;
+      opacity: 1;
+    }
+    .form-group label {
+      font-weight: 500;
+      color: #2c3e50;
+    }
+    .form-control {
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      box-shadow: none;
+      font-size: 1rem;
+    }
+    .form-control:focus {
+      border-color: #2c3e50;
+      box-shadow: 0 0 0 0.1rem rgba(44,62,80,0.08);
+    }
+    #itemPreview img {
+      border-radius: 8px;
+      border: 1px solid #e3e6ea;
+      box-shadow: 0 2px 8px rgba(44,62,80,0.07);
+      margin-bottom: 0.5rem;
+      width: 160px;
+      height: auto;
+      object-fit: contain;
+      display: inline-block;
+    }
+    .modal-footer {
+      border-top: 1px solid #e3e6ea;
+      background: #f9fafb;
+      border-radius: 0 0 14px 14px;
+    }
+    /* DataTables style */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+      border-radius: 4px;
+      border: 1px solid #e0e0e0;
+      background: #f8f9fa;
+      color: #333 !important;
+      margin: 0 2px;
+      padding: 4px 12px;
+      font-size: 0.95em;
+      transition: background 0.2s;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+      background: #333 !important;
+      color: #fff !important;
+      border-color: #333;
+    }
+    .dataTables_wrapper .dataTables_length select {
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      padding: 4px 10px;
+      font-size: 0.95em;
+      background: #fff;
+      color: #333;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      padding: 4px 10px;
+      font-size: 0.95em;
+      background: #fff;
+      color: #333;
+      min-width: 220px;
+      width: 100%;
+      max-width: 320px;
+    }
+    @media (max-width: 900px) {
+      .admin-items-wrapper {
+        padding: 15px 2vw;
+      }
+      .section-header h2 {
+        font-size: 1.5rem;
+      }
+    }
+    @media (max-width: 600px) {
+      .admin-items-wrapper {
+        padding: 5px 0.5vw;
+      }
+      .section-header {
+        padding-bottom: 10px;
+      }
+      #itable thead th, #itable tbody td {
+        font-size: 0.92rem;
+        padding: 8px 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== HEADER SECTION ==================== -->
+  <div id="header"></div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <div class="admin-items-wrapper">
+    <!-- Page Title and Description -->
+    <div class="section-header">
+      <h2>All Items <span style="font-size:1rem;font-weight:400;color:#888;">(Admin)</span></h2>
+      <p>Manage and review all items. Add, edit, or delete as needed.</p>
+    </div>
+    
+    <!-- Search and Controls Row -->
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
+          </div>
+          <input type="text" id="searchBox" class="form-control" placeholder="Search items by name, description, or category..." />
+        </div>
+      </div>
+      <div class="col-md-6 text-right">
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#itemModal">
+          <i class="fas fa-plus mr-2"></i> Add Item
+        </button>
+      </div>
+    </div>
+    
+    <!-- Items Table Container with Infinite Scroll -->
+    <div class="items-table-container" style="max-height: 500px; overflow-y: auto;">
+      <!-- Main Items Table -->
+      <table id="itable" class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th class="sortable" data-sort="item_id">
+              Item ID
+              <span class="sort-arrows">
+                <i class="fas fa-caret-up sort-up"></i>
+                <i class="fas fa-caret-down sort-down"></i>
+              </span>
+            </th>
+            <th class="sortable" data-sort="item_name">
+              Item Name
+              <span class="sort-arrows">
+                <i class="fas fa-caret-up sort-up"></i>
+                <i class="fas fa-caret-down sort-down"></i>
+              </span>
+            </th>
+            <th>Image</th>
+            <th class="sortable" data-sort="description">
+              Description
+              <span class="sort-arrows">
+                <i class="fas fa-caret-up sort-up"></i>
+                <i class="fas fa-caret-down sort-down"></i>
+              </span>
+            </th>
+            <th class="sortable" data-sort="cost_price">
+              Cost Price
+              <span class="sort-arrows">
+                <i class="fas fa-caret-up sort-up"></i>
+                <i class="fas fa-caret-down sort-down"></i>
+              </span>
+            </th>
+            <th class="sortable" data-sort="sell_price">
+              Sell Price
+              <span class="sort-arrows">
+                <i class="fas fa-caret-up sort-up"></i>
+                <i class="fas fa-caret-down sort-down"></i>
+              </span>
+            </th>
+            <th class="sortable" data-sort="quantity">
+              Quantity
+              <span class="sort-arrows">
+                <i class="fas fa-caret-up sort-up"></i>
+                <i class="fas fa-caret-down sort-down"></i>
+              </span>
+            </th>
+            <th class="sortable" data-sort="category_name">
+              Category
+              <span class="sort-arrows">
+                <i class="fas fa-caret-up sort-up"></i>
+                <i class="fas fa-caret-down sort-down"></i>
+              </span>
+            </th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="ibody"></tbody>
+      </table>
+      
+      <!-- Loading Spinner for Infinite Scroll -->
+      <div id="spinner" style="display:none; text-align:center; margin-top:10px;">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ITEM MODAL (Add/Edit Form) ==================== -->
+  <div class="modal fade" id="itemModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Item Form</h4>
+          <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">&times;</button>
+        </div>
+        
+        <!-- Modal Body - Form Fields -->
+        <div class="modal-body">
+          <form id="iform" enctype="multipart/form-data">
+            <input type="hidden" id="itemId" name="item_id" />
+            
+            <!-- Item Name Field -->
+            <div class="form-group">
+              <label>Item Name</label>
+              <input type="text" class="form-control" id="name" name="item_name" />
+            </div>
+            
+            <!-- Description Field -->
+            <div class="form-group">
+              <label>Description</label>
+              <input type="text" class="form-control" id="desc" name="description" />
+            </div>
+            
+            <!-- Sell Price Field -->
+            <div class="form-group">
+              <label>Sell Price</label>
+              <input type="number" class="form-control" id="sell" name="sell_price" />
+            </div>
+            
+            <!-- Cost Price Field -->
+            <div class="form-group">
+              <label>Cost Price</label>
+              <input type="number" class="form-control" id="cost" name="cost_price" />
+            </div>
+            
+            <!-- Quantity Field -->
+            <div class="form-group">
+              <label>Quantity</label>
+              <input type="number" class="form-control" id="qty" name="quantity" />
+            </div>
+            
+            <!-- Category Dropdown -->
+            <div class="form-group">
+              <label>Category</label>
+              <select class="form-control" id="category" name="category_id"></select>
+            </div>
+            
+            <!-- Multiple Image Upload Field -->
+            <div class="form-group">
+              <label>Images <small class="text-muted">(Select multiple images)</small></label>
+              <input type="file" class="form-control" id="img" name="images" multiple accept="image/*" />
+              <small class="form-text text-muted">First image will be the main image. You can select multiple images.</small>
+              <!-- Image Preview Area -->
+              <div id="itemPreview" class="mt-2"></div>
+            </div>
+          </form>
+        </div>
+        
+        <!-- Modal Footer - Action Buttons -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <!-- Save Button (for new items) -->
+          <button id="itemSubmit" type="submit" class="btn btn-primary">Save</button>
+          <!-- Update Button (for editing items) -->
+          <button id="itemUpdate" type="submit" class="btn btn-success" style="display: none;">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== JAVASCRIPT LIBRARIES ==================== -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/1.6.5/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/1.6.5/js/buttons.bootstrap4.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.3.5/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.5.2/bootbox.min.js"></script>
+  <!-- jQuery Validation Plugin for Form Validation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+  
+  <!-- ==================== MAIN JAVASCRIPT CODE ==================== -->
+  <script>
+    $(document).ready(function () {
+      // ========== AUTHENTICATION CHECK ========== //
+      const token = localStorage.getItem('token');
+      const role = localStorage.getItem('role') || localStorage.getItem('userRole');
+      
+      // Check if user is logged in and is admin
+      if (!token) {
+        alert('Please log in to access this page.');
+        window.location.href = '/login.html';
+        return;
+      }
+      
+      if (!role || role.toLowerCase() !== 'admin') {
+        alert('Admin access required.');
+        window.location.href = '/index.html';
+        return;
+      }
+
+      // ==================== INITIALIZATION ====================
+      
+      // Load admin header
+      $('#header').load('/header_admin.html', function () {
+          renderCart();
+        });
+
+      // ==================== API ENDPOINTS ====================
+      const baseUrl = 'http://localhost:3000/api/item/admin'; // CRUD API endpoint
+      const categoryUrl = 'http://localhost:3000/api/category'; // Category API endpoint
+      const imageBaseUrl = 'http://localhost:3000/uploads/'; // Image base URL
+
+      // ==================== JQUERY VALIDATION SETUP ====================
+      $('#iform').validate({
+        rules: {
+          item_name: {
+            required: true,
+            minlength: 2,
+            maxlength: 100
+          },
+          description: {
+            required: true,
+            minlength: 10,
+            maxlength: 500
+          },
+          sell_price: {
+            required: true,
+            number: true,
+            min: 0
+          },
+          cost_price: {
+            required: true,
+            number: true,
+            min: 0
+          },
+          quantity: {
+            required: true,
+            digits: true,
+            min: 0
+          },
+          category_id: {
+            required: true
+          }
+        },
+        messages: {
+          item_name: {
+            required: "Please enter an item name",
+            minlength: "Item name must be at least 2 characters long",
+            maxlength: "Item name cannot exceed 100 characters"
+          },
+          description: {
+            required: "Please enter a description",
+            minlength: "Description must be at least 10 characters long",
+            maxlength: "Description cannot exceed 500 characters"
+          },
+          sell_price: {
+            required: "Please enter a sell price",
+            number: "Please enter a valid number",
+            min: "Sell price must be greater than or equal to 0"
+          },
+          cost_price: {
+            required: "Please enter a cost price",
+            number: "Please enter a valid number",
+            min: "Cost price must be greater than or equal to 0"
+          },
+          quantity: {
+            required: "Please enter a quantity",
+            digits: "Please enter a valid whole number",
+            min: "Quantity must be greater than or equal to 0"
+          },
+          category_id: {
+            required: "Please select a category"
+          }
+        },
+        errorElement: 'span',
+        errorClass: 'text-danger',
+        highlight: function(element) {
+          $(element).addClass('is-invalid');
+        },
+        unhighlight: function(element) {
+          $(element).removeClass('is-invalid');
+        },
+        errorPlacement: function(error, element) {
+          error.insertAfter(element);
+        }
+      });
+
+      // ==================== LOAD CATEGORIES ====================
+      $.ajax({
+        url: categoryUrl,
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + token
+        },
+        success: function (res) {
+          if (res.success) {
+            res.data.forEach(cat => {
+              $('#category').append(`<option value="${cat.category_id}">${cat.description}</option>`);
+            });
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error('Error loading categories:', error);
+        }
+      });
+
+      // ==================== INFINITE SCROLL VARIABLES ====================
+      let currentPage = 1;
+      const pageSize = 10;
+      let totalItems = 0;
+      let loading = false;
+      let allLoaded = false;
+      
+      // ==================== SEARCH AND SORT VARIABLES ====================
+      let allItems = []; // Store all items for client-side search and sort
+      let filteredItems = []; // Store filtered items
+      let currentSort = { field: 'item_id', direction: 'asc' }; // Current sort state
+      let searchTerm = ''; // Current search term
+
+      // ==================== FETCH ITEMS FUNCTION ====================
+      // Load all items from backend for search and sort functionality
+      function fetchItems(page = 1, append = false) {
+        if (loading) return;
+        loading = true;
+        $('#spinner').show();
+        
+        // Fetch all items at once for better search/sort performance
+        $.ajax({
+          url: `${baseUrl}?limit=1000`,
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer ' + token
+          },
+          success: function (res) {
+          const items = res.data || [];
+          allItems = items;
+          applySearchAndSort();
+          loading = false;
+          $('#spinner').hide();
+        },
+        error: function() {
+          loading = false;
+          $('#spinner').hide();
+          Swal.fire('Error', 'Failed to load items.', 'error');
+        }
+      });
+      }
+      
+      // ==================== SEARCH AND SORT FUNCTIONS ====================
+      function applySearchAndSort() {
+        // Apply search filter
+        filteredItems = allItems.filter(item => {
+          if (!searchTerm) return true;
+          const searchLower = searchTerm.toLowerCase();
+          return (
+            (item.item_name && item.item_name.toLowerCase().includes(searchLower)) ||
+            (item.description && item.description.toLowerCase().includes(searchLower)) ||
+            (item.category_name && item.category_name.toLowerCase().includes(searchLower)) ||
+            (item.item_id && item.item_id.toString().includes(searchTerm))
+          );
+        });
+        
+        // Apply sorting
+        filteredItems.sort((a, b) => {
+          let aVal = a[currentSort.field];
+          let bVal = b[currentSort.field];
+          
+          // Handle numeric values
+          if (['item_id', 'cost_price', 'sell_price', 'quantity'].includes(currentSort.field)) {
+            aVal = parseFloat(aVal) || 0;
+            bVal = parseFloat(bVal) || 0;
+          } else {
+            // Handle string values
+            aVal = (aVal || '').toString().toLowerCase();
+            bVal = (bVal || '').toString().toLowerCase();
+          }
+          
+          if (currentSort.direction === 'asc') {
+            return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+          } else {
+            return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+          }
+        });
+        
+        // Render the filtered and sorted items
+        renderTable(filteredItems);
+      }
+      
+      // ==================== SEARCH HANDLER ====================
+      $('#searchBox').on('input', function() {
+        searchTerm = $(this).val();
+        applySearchAndSort();
+      });
+      
+      // ==================== SORT HANDLER ====================
+      $('#itable thead').on('click', '.sortable', function() {
+        const field = $(this).data('sort');
+        const currentField = currentSort.field;
+        const currentDirection = currentSort.direction;
+        
+        // Reset all sort indicators
+        $('.sortable').removeClass('sort-asc sort-desc');
+        
+        // Set new sort
+        if (field === currentField) {
+          // Toggle direction if same field
+          currentSort.direction = currentDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+          // New field, default to ascending
+          currentSort.field = field;
+          currentSort.direction = 'asc';
+        }
+        
+        // Add sort indicator
+        const sortClass = currentSort.direction === 'asc' ? 'sort-asc' : 'sort-desc';
+        $(this).addClass(sortClass);
+        
+        // Apply search and sort
+        applySearchAndSort();
+      });
+
+      // ==================== RENDER TABLE FUNCTION ====================
+      // Render items in the table with CRUD action buttons
+      function renderTable(items, append = false) {
+        const tbody = $('#ibody');
+        tbody.empty(); // Always clear and re-render for search/sort
+        
+        if (items.length === 0) {
+          tbody.append(`
+            <tr>
+              <td colspan="9" class="text-center text-muted py-4">
+                <i class="fas fa-search fa-2x mb-2"></i>
+                <br>
+                ${searchTerm ? 'No items found matching your search.' : 'No items available.'}
+              </td>
+            </tr>
+          `);
+          return;
+        }
+        
+        items.forEach(data => {
+          // Handle multiple images display
+          const images = (data.all_images || []).filter(Boolean);
+          const imgHtml = images.length ? images.map(img => `<img src="${imageBaseUrl}${img}" width="40" height="40" class="mr-1 mb-1"/>`).join('') : 'No Image';
+          
+          // Create action buttons based on item status (deleted or active)
+          const actionHtml = data.deleted_at ?
+            `<a href="#" class="restoreBtn ml-2" data-id="${data.item_id}"><i class="fas fa-undo text-success" style="font-size: 20px;"></i></a>` :
+            `<a href="#" class="editBtn" data-id="${data.item_id}"><i class="fas fa-edit text-primary" style="font-size: 20px;"></i></a>
+             <a href="#" class="deleteBtn ml-2" data-id="${data.item_id}"><i class="fas fa-trash-alt text-danger" style="font-size: 20px;"></i></a>`;
+          
+          // Append table row with item data
+          tbody.append(`
+            <tr>
+              <td>${data.item_id}</td>
+              <td>${data.item_name}</td>
+              <td>${imgHtml}</td>
+              <td>${data.description || ''}</td>
+              <td>${data.cost_price || ''}</td>
+              <td>${data.sell_price || ''}</td>
+              <td>${data.quantity || ''}</td>
+              <td>${data.category_name || ''}</td>
+              <td>${actionHtml}</td>
+            </tr>
+          `);
+        });
+        
+        // Update results count
+        updateResultsCount();
+      }
+      
+      // ==================== UPDATE RESULTS COUNT ====================
+      function updateResultsCount() {
+        const totalCount = allItems.length;
+        const filteredCount = filteredItems.length;
+        const searchInfo = searchTerm ? 
+          `Showing ${filteredCount} of ${totalCount} items` : 
+          `Total: ${totalCount} items`;
+        
+        // Add or update results count display
+        let countDisplay = $('.results-count');
+        if (countDisplay.length === 0) {
+          $('.section-header p').after(`<div class="results-count text-muted text-center mb-3">${searchInfo}</div>`);
+        } else {
+          countDisplay.text(searchInfo);
+        }
+      }
+
+      // ==================== INITIAL DATA LOAD ====================
+      // Load all items on page load
+      fetchItems();
+
+      // ==================== ADD ITEM MODAL HANDLER ====================
+      // Reset form when opening Add Item modal
+      $('[data-target="#itemModal"]').on('click', function () {
+        $('#iform')[0].reset();
+        $('#itemId').val('');
+        $('#itemSubmit').show();
+        $('#itemUpdate').hide();
+        $('#itemPreview').empty();
+        // Clear validation errors
+        $('#iform').find('.is-invalid').removeClass('is-invalid');
+        $('#iform').find('.text-danger').remove();
+      });
+
+      // ==================== IMAGE PREVIEW HANDLER ====================
+      // Show preview of selected images
+      $('#img').on('change', function() {
+        const files = this.files;
+        const preview = $('#itemPreview');
+        preview.empty();
+        
+        if (files.length > 0) {
+          preview.append('<p class="text-info mb-2"><strong>Selected Images:</strong></p>');
+          
+          Array.from(files).forEach((file, index) => {
+            if (file.type.startsWith('image/')) {
+              const reader = new FileReader();
+              reader.onload = function(e) {
+                preview.append(`
+                  <div class="d-inline-block mr-2 mb-2">
+                    <img src="${e.target.result}" width="100" height="100" class="border rounded" style="object-fit: cover;" />
+                    <div class="text-center mt-1">
+                      <small class="text-muted">${file.name}</small>
+                    </div>
+                  </div>
+                `);
+              };
+              reader.readAsDataURL(file);
+            }
+          });
+          
+          if (files.length > 1) {
+            preview.append(`
+              <div class="mt-2">
+                <small class="text-warning">
+                  <i class="fas fa-info-circle"></i> 
+                  First image will be the main image, others will be additional images.
+                </small>
+              </div>
+            `);
+          }
+        }
+      });
+
+      // ==================== CLEAR SEARCH ====================
+      // Add clear search functionality
+      $('#searchBox').on('keyup', function(e) {
+        if (e.key === 'Escape') {
+          $(this).val('');
+          searchTerm = '';
+          applySearchAndSort();
+        }
+      });
+
+      // ==================== CREATE ITEM (POST) ====================
+      // Handle form submission for creating new items
+      $('#itemSubmit').click(function (e) {
+        e.preventDefault();
+        // Validate form before submission
+        if (!$('#iform').valid()) {
+          return false;
+        }
+        const formData = new FormData($('#iform')[0]);
+        $.ajax({
+          url: baseUrl,
+          method: 'POST',
+          data: formData,
+          contentType: false,
+          processData: false,
+          success: function () {
+            Swal.fire('Success', 'Item created!', 'success');
+            $('#itemModal').modal('hide');
+            // Reset and reload all items
+            fetchItems();
+          },
+          error: function (err) {
+            console.error(err);
+            Swal.fire('Error', 'Item creation failed.', 'error');
+          }
+        });
+      });
+
+      // ==================== EDIT ITEM (GET + PUT) ====================
+      // Handle edit button click - load item data into form
+      $('#itable tbody').on('click', '.editBtn', function (e) {
+        e.preventDefault();
+        const id = $(this).data('id');
+        $('#itemSubmit').hide();
+        $('#itemUpdate').show();
+        $('#itemPreview').empty();
+        // Clear validation errors
+        $('#iform').find('.is-invalid').removeClass('is-invalid');
+        $('#iform').find('.text-danger').remove();
+
+        // Fetch item data for editing
+        $.ajax({
+          url: `${baseUrl}/${id}`,
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer ' + token
+          },
+          success: function (res) {
+          const item = res.result[0];
+          $('#itemId').val(item.item_id);
+          $('#name').val(item.item_name);
+          $('#desc').val(item.description);
+          $('#sell').val(item.sell_price);
+          $('#cost').val(item.cost_price);
+          $('#qty').val(item.quantity);
+          $('#category').val(item.category_id);
+
+          // Clear file input and show current images in preview
+          $('#img').val('');
+          const images = [...new Set(item.all_images || [])]; // Deduplicate just in case
+          if (images.length > 0) {
+            const previews = images.map(img => `<img src="${imageBaseUrl}${img}" width="100" class="mr-2 mb-2" />`).join('');
+            $('#itemPreview').html(`
+              <p class="text-info mb-2"><strong>Current Images:</strong></p>
+              ${previews}
+              <div class="mt-2">
+                <small class="text-warning">
+                  <i class="fas fa-info-circle"></i> 
+                  Select new images to replace current ones, or leave empty to keep current images.
+                </small>
+              </div>
+            `);
+          } else {
+            $('#itemPreview').html('<p class="text-muted">No images currently uploaded.</p>');
+          }
+
+          $('#itemModal').modal('show');
+          },
+          error: function () {
+            Swal.fire('Error', 'Failed to fetch item data.', 'error');
+          }
+        });
+      });
+
+      // Handle update button click - save edited item
+      $('#itemUpdate').click(function (e) {
+        e.preventDefault();
+        // Validate form before submission
+        if (!$('#iform').valid()) {
+          return false;
+        }
+        
+        const id = $('#itemId').val();
+        const formData = new FormData($('#iform')[0]);
+        const hasNewImages = formData.get('images').size > 0;
+        
+        // Show confirmation if new images are being uploaded
+        if (hasNewImages) {
+          Swal.fire({
+            title: 'Update Images?',
+            text: 'This will replace all current images with the new ones. Continue?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, update images',
+            cancelButtonText: 'Cancel'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              submitUpdate(id, formData);
+            }
+          });
+        } else {
+          // No new images, proceed with update
+          submitUpdate(id, formData);
+        }
+      });
+      
+      // Helper function to submit the update
+      function submitUpdate(id, formData) {
+        $.ajax({
+          url: `${baseUrl}/${id}`,
+          method: 'PUT',
+          data: formData,
+          contentType: false,
+          processData: false,
+          headers: {
+            'Authorization': 'Bearer ' + token
+          },
+          success: function () {
+            Swal.fire('Updated', 'Item updated successfully.', 'success');
+            $('#itemModal').modal('hide');
+            // Reset and reload all items
+            fetchItems();
+          },
+          error: function (err) {
+            console.error(err);
+            Swal.fire('Error', 'Failed to update item.', 'error');
+          }
+        });
+      }
+
+      // ==================== DELETE ITEM (DELETE) ====================
+      // Handle delete button click - soft delete item
+      $('#itable tbody').on('click', '.deleteBtn', function (e) {
+        e.preventDefault();
+        const id = $(this).data('id');
+        Swal.fire({
+          title: 'Are you sure?',
+          text: 'This item will be deleted.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, delete it!'
+        }).then(result => {
+          if (result.isConfirmed) {
+            $.ajax({
+              url: `${baseUrl}/${id}`,
+              method: 'DELETE',
+              headers: {
+                'Authorization': 'Bearer ' + token
+              },
+              success: function () {
+                Swal.fire('Deleted!', 'Item has been deleted.', 'success');
+                // Reset and reload all items
+                fetchItems();
+              },
+              error: function (err) {
+                console.error(err);
+                Swal.fire('Error', 'Failed to delete item.', 'error');
+              }
+            });
+          }
+        });
+      });
+    });
+    
+    // ==================== RESTORE ITEM (PATCH) ====================
+    // Handle restore button click - restore soft-deleted item
+    $('#itable tbody').on('click', '.restoreBtn', function (e) {
+      e.preventDefault();
+      const id = $(this).data('id');
+      Swal.fire({
+        title: 'Restore Item?',
+        text: 'Do you want to restore this item?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, restore it!'
+      }).then(result => {
+        if (result.isConfirmed) {
+          $.ajax({
+            url: `http://localhost:3000/api/item/admin/restore/${id}`,
+            method: 'PATCH',
+            headers: {
+              'Authorization': 'Bearer ' + token
+            },
+            success: function () {
+              Swal.fire('Restored!', 'Item has been restored.', 'success');
+              // Reset and reload all items
+              fetchItems();
+            },
+            error: function (err) {
+              console.error(err);
+              Swal.fire('Error', 'Failed to restore item.', 'error');
+            }
+          });
+        }
+      });
+    });
+
+  </script>
+</body>
+</html>
